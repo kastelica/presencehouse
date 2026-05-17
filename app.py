@@ -1,6 +1,8 @@
 import os
 import base64
 import requests
+from google import genai
+from google.genai import types
 from datetime import datetime, timedelta
 
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -119,9 +121,9 @@ def parse_dt(value: str):
 class VeoVideoForm(FlaskForm):
     prompt = TextAreaField("Video prompt", validators=[DataRequired(), Length(max=2000)])
     image_urls = TextAreaField("Initial frame image URLs (one per line)", validators=[DataRequired(), Length(max=4000)])
-    sample_count = IntegerField("Sample count", validators=[Optional(), NumberRange(min=1, max=4)], default=1)
-    resize_mode = SelectField("Resize mode", choices=[("crop", "crop"), ("pad", "pad")], default="crop")
-    submit = SubmitField("Generate video with Veo")
+    aspect_ratio = SelectField("Aspect ratio", choices=[("16:9", "16:9"), ("9:16", "9:16"), ("1:1", "1:1"), ("4:3", "4:3"), ("3:4", "3:4")], default="16:9")
+    image_size = SelectField("Image size", choices=[("512", "512"), ("1K", "1K"), ("2K", "2K"), ("4K", "4K")], default="1K")
+    submit = SubmitField("Generate concept image")
 
 
 def list_available_veo_models(api_key: str):
@@ -132,35 +134,29 @@ def list_available_veo_models(api_key: str):
     return [m for m in models if "veo" in (m.get("name", "").lower())]
 
 
-def generate_veo_video(api_key: str, project_id: str, model: str, prompt: str, image_url: str, sample_count: int, resize_mode: str, storage_uri: str | None = None):
+def generate_veo_video(api_key: str, model: str, prompt: str, image_url: str, aspect_ratio: str, image_size: str):
+    client = genai.Client(api_key=api_key)
+
     image_resp = requests.get(image_url, timeout=30)
     image_resp.raise_for_status()
-    content_type = (image_resp.headers.get("Content-Type") or "image/jpeg").split(";")[0].strip().lower()
-    if content_type not in {"image/jpeg", "image/png"}:
-        content_type = "image/jpeg"
+    mime_type = (image_resp.headers.get("Content-Type") or "image/jpeg").split(";")[0].strip().lower()
+    if mime_type not in {"image/jpeg", "image/png"}:
+        mime_type = "image/jpeg"
 
-    image_b64 = base64.b64encode(image_resp.content).decode("utf-8")
-    endpoint = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/{model}:predictLongRunning"
-    params = {"key": api_key}
-    payload = {
-        "instances": [{
-            "prompt": prompt,
-            "image": {
-                "bytesBase64Encoded": image_b64,
-                "mimeType": content_type,
-            },
-        }],
-        "parameters": {
-            "sampleCount": sample_count,
-            "resizeMode": resize_mode,
-        },
-    }
-    if storage_uri:
-        payload["parameters"]["storageUri"] = storage_uri
+    contents = [
+        prompt,
+        types.Part.from_bytes(data=image_resp.content, mime_type=mime_type),
+    ]
 
-    resp = requests.post(endpoint, params=params, json=payload, timeout=60)
-    resp.raise_for_status()
-    return resp.json()
+    response = client.models.generate_content(
+        model=model,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            response_modalities=["TEXT", "IMAGE"],
+            response_format={"image": {"aspect_ratio": aspect_ratio, "image_size": image_size}},
+        ),
+    )
+    return response
 
 
 def register_routes(app: Flask):
@@ -315,13 +311,9 @@ def register_routes(app: Flask):
 
         if veo_form.validate_on_submit() and veo_form.submit.data:
             api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
-            model = os.environ.get("GOOGLE_VEO_MODEL", "veo-3.0-generate-001")
-            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "").strip()
-            storage_uri = os.environ.get("GOOGLE_VEO_STORAGE_URI", "").strip()
+            model = os.environ.get("GOOGLE_VEO_MODEL", "gemini-3.1-flash-image-preview")
             if not api_key:
-                flash("Missing GOOGLE_API_KEY. Add it to environment to enable Veo generation.", "danger")
-            elif not project_id:
-                flash("Missing GOOGLE_CLOUD_PROJECT for Vertex Veo endpoint.", "danger")
+                flash("Missing GOOGLE_API_KEY. Add it to environment to enable generation.", "danger")
             else:
                 urls = [u.strip() for u in (veo_form.image_urls.data or "").splitlines() if u.strip()]
                 if not urls:
@@ -334,15 +326,14 @@ def register_routes(app: Flask):
                         model=model,
                         prompt=veo_form.prompt.data.strip(),
                         image_url=urls[0],
-                        sample_count=veo_form.sample_count.data or 1,
-                        resize_mode=veo_form.resize_mode.data,
-                        storage_uri=storage_uri or None,
+                        aspect_ratio=veo_form.aspect_ratio.data,
+                        image_size=veo_form.image_size.data,
                     )
-                    operation_name = result.get("name") or result.get("operation", {}).get("name")
-                    if operation_name:
-                        flash(f"Veo job submitted: {operation_name}", "success")
+                    image_parts = [part for part in (result.parts or []) if getattr(part, "inline_data", None) is not None]
+                    if image_parts:
+                        flash(f"Image generated successfully with {model}.", "success")
                     else:
-                        flash("Veo request submitted successfully.", "success")
+                        flash("Generation completed, but no image was returned.", "warning")
                 except requests.HTTPError as exc:
                     detail = exc.response.text[:500] if exc.response is not None else str(exc)
                     if exc.response is not None and exc.response.status_code == 404:
@@ -350,7 +341,7 @@ def register_routes(app: Flask):
                             veo_models = list_available_veo_models(api_key)
                             names = [m.get("name", "") for m in veo_models][:8]
                             if names:
-                                flash(f"Configured model '{model}' is unavailable for v1beta/predictLongRunning. Try one of: {', '.join(names)}", "danger")
+                                flash(f"Configured model '{model}' is unavailable. Try one of: {', '.join(names)}", "danger")
                             else:
                                 flash("No Veo models were returned by ModelService.ListModels for this API key/project.", "danger")
                         except requests.RequestException:

@@ -35,14 +35,14 @@
     </article>
 
     <article class="card app-card form-card admin-block">
-      <div class="card-head"><h2>Generate Veo video</h2></div>
-      <p class="muted">Use still image URLs as initial frames for a Presence House concept clip.</p>
+      <div class="card-head"><h2>Generate concept image</h2></div>
+      <p class="muted">Use the new Gemini image flow (prompt + reference image) from the latest docs.</p>
       <form method="POST" class="stack-form">
         {{ veo_form.hidden_tag() }}
         {{ veo_form.prompt.label }}{{ veo_form.prompt(rows=4, placeholder='Cinematic walkthrough of Presence House with warm lighting, people socializing, and analog games.') }}
         {{ veo_form.image_urls.label }}{{ veo_form.image_urls(rows=4, placeholder='https://...\nhttps://...') }}
-        {{ veo_form.sample_count.label }}{{ veo_form.sample_count() }}
-        {{ veo_form.resize_mode.label }}{{ veo_form.resize_mode() }}
+        {{ veo_form.aspect_ratio.label }}{{ veo_form.aspect_ratio() }}
+        {{ veo_form.image_size.label }}{{ veo_form.image_size() }}
         {{ veo_form.submit(class_='btn') }}
       </form>
     </article>
