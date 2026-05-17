@@ -43,3 +43,53 @@
   render();
   autoplay();
 })();
+
+
+(function () {
+  const shell = document.querySelector("[data-nav-shell]");
+  const toggle = document.querySelector("[data-menu-toggle]");
+  if (!shell || !toggle) return;
+
+  toggle.addEventListener("click", () => {
+    const isOpen = shell.classList.toggle("nav-open");
+    toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+})();
+
+
+(function trackMetaEvents() {
+  if (typeof window.fbq !== 'function') return;
+
+  document.querySelectorAll('a[href*="spot.fund/j2brwjqsc"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      fbq('trackCustom', 'DonateLinkClick', {
+        destination: link.getAttribute('href') || '',
+        text: (link.textContent || '').trim(),
+      });
+    });
+  });
+
+  const foundingForm = document.querySelector('#founding-list form');
+  foundingForm?.addEventListener('submit', () => {
+    fbq('track', 'Lead', { content_name: 'Founding List Form Submit' });
+    fbq('trackCustom', 'FoundingListSubmit', { source: 'homepage_form' });
+  });
+
+  const successFlash = document.querySelector('.flash.success');
+  const flashMessage = (successFlash?.textContent || '').trim();
+  if (flashMessage && /thanks|submit|supporting|received/i.test(flashMessage)) {
+    fbq('track', 'CompleteRegistration', { status: 'success_flash' });
+    fbq('trackCustom', 'FoundingListConfirmed', { message: flashMessage });
+  }
+})();
+
+
+(function removeLegacyGallery2NavLink() {
+  document.querySelectorAll('a[href*="gallery2"], a').forEach((link) => {
+    const label = (link.textContent || '').trim().toLowerCase();
+    const href = (link.getAttribute('href') || '').toLowerCase();
+    if (label === 'gallery2' || label === 'galery2' || href.includes('gallery2')) {
+      link.remove();
+    }
+  });
+})();
