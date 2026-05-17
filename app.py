@@ -1,4 +1,5 @@
 import os
+import base64
 import requests
 from datetime import datetime, timedelta
 
@@ -118,8 +119,8 @@ def parse_dt(value: str):
 class VeoVideoForm(FlaskForm):
     prompt = TextAreaField("Video prompt", validators=[DataRequired(), Length(max=2000)])
     image_urls = TextAreaField("Initial frame image URLs (one per line)", validators=[DataRequired(), Length(max=4000)])
-    duration_seconds = IntegerField("Duration seconds", validators=[Optional(), NumberRange(min=3, max=12)], default=8)
-    aspect_ratio = SelectField("Aspect ratio", choices=[("16:9", "16:9"), ("9:16", "9:16"), ("1:1", "1:1")], default="16:9")
+    sample_count = IntegerField("Sample count", validators=[Optional(), NumberRange(min=1, max=4)], default=1)
+    resize_mode = SelectField("Resize mode", choices=[("crop", "crop"), ("pad", "pad")], default="crop")
     submit = SubmitField("Generate video with Veo")
 
 
@@ -131,18 +132,33 @@ def list_available_veo_models(api_key: str):
     return [m for m in models if "veo" in (m.get("name", "").lower())]
 
 
-def generate_veo_video(api_key: str, model: str, prompt: str, image_urls: list[str], duration_seconds: int, aspect_ratio: str | None = None):
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:predictLongRunning"
-    instance = {
-        "prompt": prompt,
-        "imageUrls": image_urls,
-        "durationSeconds": duration_seconds,
-    }
-    if aspect_ratio:
-        instance["aspectRatio"] = aspect_ratio
+def generate_veo_video(api_key: str, project_id: str, model: str, prompt: str, image_url: str, sample_count: int, resize_mode: str, storage_uri: str | None = None):
+    image_resp = requests.get(image_url, timeout=30)
+    image_resp.raise_for_status()
+    content_type = (image_resp.headers.get("Content-Type") or "image/jpeg").split(";")[0].strip().lower()
+    if content_type not in {"image/jpeg", "image/png"}:
+        content_type = "image/jpeg"
 
-    payload = {"instances": [instance]}
-    resp = requests.post(endpoint, params={"key": api_key}, json=payload, timeout=45)
+    image_b64 = base64.b64encode(image_resp.content).decode("utf-8")
+    endpoint = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/{model}:predictLongRunning"
+    params = {"key": api_key}
+    payload = {
+        "instances": [{
+            "prompt": prompt,
+            "image": {
+                "bytesBase64Encoded": image_b64,
+                "mimeType": content_type,
+            },
+        }],
+        "parameters": {
+            "sampleCount": sample_count,
+            "resizeMode": resize_mode,
+        },
+    }
+    if storage_uri:
+        payload["parameters"]["storageUri"] = storage_uri
+
+    resp = requests.post(endpoint, params=params, json=payload, timeout=60)
     resp.raise_for_status()
     return resp.json()
 
@@ -299,19 +315,28 @@ def register_routes(app: Flask):
 
         if veo_form.validate_on_submit() and veo_form.submit.data:
             api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
-            model = os.environ.get("GOOGLE_VEO_MODEL", "veo-3.0-generate-preview")
+            model = os.environ.get("GOOGLE_VEO_MODEL", "veo-3.0-generate-001")
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "").strip()
+            storage_uri = os.environ.get("GOOGLE_VEO_STORAGE_URI", "").strip()
             if not api_key:
                 flash("Missing GOOGLE_API_KEY. Add it to environment to enable Veo generation.", "danger")
+            elif not project_id:
+                flash("Missing GOOGLE_CLOUD_PROJECT for Vertex Veo endpoint.", "danger")
             else:
                 urls = [u.strip() for u in (veo_form.image_urls.data or "").splitlines() if u.strip()]
+                if not urls:
+                    flash("Provide at least one image URL.", "danger")
+                    return redirect(url_for("admin"))
                 try:
                     result = generate_veo_video(
                         api_key=api_key,
+                        project_id=project_id,
                         model=model,
                         prompt=veo_form.prompt.data.strip(),
-                        image_urls=urls,
-                        duration_seconds=veo_form.duration_seconds.data or 8,
-                        aspect_ratio=veo_form.aspect_ratio.data,
+                        image_url=urls[0],
+                        sample_count=veo_form.sample_count.data or 1,
+                        resize_mode=veo_form.resize_mode.data,
+                        storage_uri=storage_uri or None,
                     )
                     operation_name = result.get("name") or result.get("operation", {}).get("name")
                     if operation_name:
@@ -319,25 +344,8 @@ def register_routes(app: Flask):
                     else:
                         flash("Veo request submitted successfully.", "success")
                 except requests.HTTPError as exc:
-                    detail = exc.response.text[:400] if exc.response is not None else str(exc)
-                    if exc.response is not None and exc.response.status_code == 400 and "aspectRatio" in detail:
-                        try:
-                            result = generate_veo_video(
-                                api_key=api_key,
-                                model=model,
-                                prompt=veo_form.prompt.data.strip(),
-                                image_urls=urls,
-                                duration_seconds=veo_form.duration_seconds.data or 8,
-                                aspect_ratio=None,
-                            )
-                            operation_name = result.get("name") or result.get("operation", {}).get("name")
-                            if operation_name:
-                                flash(f"Veo job submitted without aspect ratio: {operation_name}", "success")
-                            else:
-                                flash("Veo request submitted without aspect ratio.", "success")
-                        except requests.RequestException as retry_exc:
-                            flash(f"Veo request failed: {detail}. Retry without aspect ratio also failed: {retry_exc}", "danger")
-                    elif exc.response is not None and exc.response.status_code == 404:
+                    detail = exc.response.text[:500] if exc.response is not None else str(exc)
+                    if exc.response is not None and exc.response.status_code == 404:
                         try:
                             veo_models = list_available_veo_models(api_key)
                             names = [m.get("name", "") for m in veo_models][:8]
