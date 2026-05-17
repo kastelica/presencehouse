@@ -56,3 +56,6 @@ select{width:100%;padding:.8rem;border-radius:14px;border:1px solid #cbc6bc;back
   .gallery-full .next{right:1rem}
   .gallery-note{top:.75rem;left:50%;max-width:min(90vw,620px)}
 }
+
+
+.more-toggle{display:flex;align-items:center;gap:.5rem;font-weight:500;color:var(--primary);margin:.2rem 0}.tell-more{display:grid;gap:.6rem;padding:.8rem;border:1px solid #d9d5cc;border-radius:14px;background:#f8f7f4}

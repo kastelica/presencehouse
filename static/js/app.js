@@ -176,3 +176,17 @@
     });
   }
 })();
+
+
+(function wireTellMoreToggle() {
+  const toggle = document.querySelector('#tell-more-toggle');
+  const section = document.querySelector('#tell-more-section');
+  if (!toggle || !section) return;
+
+  function render() {
+    section.hidden = !toggle.checked;
+  }
+
+  toggle.addEventListener('change', render);
+  render();
+})();

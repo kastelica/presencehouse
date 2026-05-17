@@ -152,6 +152,7 @@
   {% if request.args.get("submitted") == "1" %}<div class="inline-success" id="founding-list-status">Thanks — your Founding List form was received successfully.</div>{% else %}<div id="founding-list-status" class="inline-success" hidden></div>{% endif %}
   {% if formspree_endpoint %}<form id="founding-list-form" method="POST" action="{{ formspree_endpoint }}">{% else %}<form id="founding-list-form" method="POST" action="{{ url_for('founding_list') }}">{% endif %}
     <div class="grid2"><input name="name" placeholder="Name" required><input type="email" name="email" placeholder="Email" required></div>
+    <input type="tel" name="phone" placeholder="Phone Number" inputmode="tel">
     <select name="interest_type" required>
       <option value="" disabled selected>Select Interest Type</option>
       <option>Founding Membership</option>
@@ -166,6 +167,20 @@
       <option>$199+ / month</option>
       <option>Unsure</option>
     </select>
+    <label class="more-toggle"><input type="checkbox" id="tell-more-toggle" name="share_more"> Tell us more (optional)</label>
+    <div id="tell-more-section" class="tell-more" hidden>
+      <div class="grid2">
+        <input name="city" placeholder="City">
+        <input name="profession" placeholder="Profession / Role">
+      </div>
+      <div class="grid2">
+        <input name="community_interests" placeholder="Community interests (e.g. reading, dinners, workshops)">
+        <input name="visit_timing" placeholder="When would you most likely visit?">
+      </div>
+      <textarea name="goals" rows="3" placeholder="What are you hoping to get from Presence House?"></textarea>
+      <textarea name="questions" rows="3" placeholder="Any questions for our team?"></textarea>
+      <textarea name="accessibility_needs" rows="2" placeholder="Accessibility or accommodation needs (optional)"></textarea>
+    </div>
     <textarea name="note" rows="4" placeholder="Optional Note"></textarea>
     <button class="btn" type="submit">Submit to Founding List</button>
   </form>
