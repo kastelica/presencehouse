@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from functools import wraps
 
 from flask import Flask, flash, redirect, render_template, request, url_for
@@ -53,7 +53,12 @@ def create_app() -> Flask:
         return User.query.get(int(user_id))
 
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except OperationalError as exc:
+            # Multi-worker sqlite boot race: one worker creates table first.
+            if "already exists" not in str(exc).lower():
+                raise
         if should_seed_on_boot():
             seed_data()
 
