@@ -13,3 +13,9 @@ form{display:grid;gap:.7rem}input,select,textarea{width:100%;padding:.7rem;borde
 
 .cta-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.8rem}
 .eyebrow{letter-spacing:.06em;text-transform:uppercase;color:var(--stone);font-size:.8rem;margin:0 0 .5rem}
+
+.quote-grid{display:grid;gap:.8rem}
+blockquote{margin:0;padding:1rem;border-radius:12px;background:#fff;border:1px solid #e7dccb}
+blockquote p{margin:0 0 .45rem}
+blockquote cite{font-style:normal;color:var(--stone);font-size:.92rem}
+@media(min-width:768px){.quote-grid{grid-template-columns:repeat(3,1fr)}}
