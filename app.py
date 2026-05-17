@@ -39,7 +39,7 @@ def create_app() -> Flask:
     raw_db_url = os.environ.get("DATABASE_URL", "sqlite:///presence_house.db")
     app.config["SQLALCHEMY_DATABASE_URI"] = normalize_database_url(raw_db_url)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["FORMSPREE_ENDPOINT"] = os.environ.get("FORMSPREE_ENDPOINT", "").strip()
+    app.config["FORMSPREE_ENDPOINT"] = os.environ.get("FORMSPREE_ENDPOINT", "https://formspree.io/f/xpqnajqj").strip()
 
     db.init_app(app)
 

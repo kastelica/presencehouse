@@ -99,8 +99,8 @@
 <section id="founding-list" class="shell form-section">
   <h2>Join the Founding List</h2>
   <p>Be first to know about location reveals and membership openings. The app exists to help you return to the room.</p>
-  {% if request.args.get("submitted") == "1" %}<div class="inline-success">Thanks — your Founding List form was received successfully.</div>{% endif %}
-  {% if formspree_endpoint %}<form method="POST" action="{{ formspree_endpoint }}">{% else %}<form method="POST" action="{{ url_for('founding_list') }}">{% endif %}
+  {% if request.args.get("submitted") == "1" %}<div class="inline-success" id="founding-list-status">Thanks — your Founding List form was received successfully.</div>{% else %}<div id="founding-list-status" class="inline-success" hidden></div>{% endif %}
+  {% if formspree_endpoint %}<form id="founding-list-form" method="POST" action="{{ formspree_endpoint }}">{% else %}<form id="founding-list-form" method="POST" action="{{ url_for('founding_list') }}">{% endif %}
     <div class="grid2"><input name="name" placeholder="Name" required><input type="email" name="email" placeholder="Email" required></div>
     <select name="interest_type" required>
       <option value="" disabled selected>Select Interest Type</option>
