@@ -322,7 +322,6 @@ def register_routes(app: Flask):
                 try:
                     result = generate_veo_video(
                         api_key=api_key,
-                        project_id=project_id,
                         model=model,
                         prompt=veo_form.prompt.data.strip(),
                         image_url=urls[0],
