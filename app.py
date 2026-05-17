@@ -266,28 +266,10 @@ def register_routes(app: Flask):
         return render_template("admin.html", activity_form=activity_form, ann_form=ann_form, activities=Activity.query.all(), zones=Zone.query.all())
 
     @app.route("/gallery")
+    @app.route("/gallery2")
+    @app.route("/slider2")
     def gallery():
         return render_template("gallery2.html")
-
-
-    @app.route("/gallery2")
-    def gallery2():
-        return render_template("gallery2.html")
-
-    @app.route("/slider2")
-    def slider2():
-        return render_template("gallery2.html")
-
-
-
-    @app.route("/gallery2")
-    def gallery2():
-        return render_template("gallery2.html")
-
-    @app.route("/slider2")
-    def slider2():
-        return render_template("gallery2.html")
-
 
     @app.route("/health")
     def health():

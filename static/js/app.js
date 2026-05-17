@@ -43,3 +43,15 @@
   render();
   autoplay();
 })();
+
+
+(function () {
+  const shell = document.querySelector("[data-nav-shell]");
+  const toggle = document.querySelector("[data-menu-toggle]");
+  if (!shell || !toggle) return;
+
+  toggle.addEventListener("click", () => {
+    const isOpen = shell.classList.toggle("nav-open");
+    toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+})();
