@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ activity.title }} | Presence House{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ activity.title }}</h1>
+  <p>{{ activity.description }}</p>
+  <p>{{ activity.zone }} · {{ activity.start_time.strftime('%b %d, %I:%M %p') }} to {{ activity.end_time.strftime('%I:%M %p') }}</p>
+  <p>Status: {{ activity.status }} · Capacity: {{ activity.capacity }} · Attending: {{ activity.attendee_count }}</p>
+  <p>Seats open: {{ activity.seats_open }}</p>
+  {% if joined %}
+    <form method="POST" action="{{ url_for('leave_activity', activity_id=activity.id) }}"><button class="btn ghost" type="submit">Leave activity</button></form>
+  {% else %}
+    <form method="POST" action="{{ url_for('join_activity', activity_id=activity.id) }}"><button class="btn" type="submit">Join activity</button></form>
+  {% endif %}
+</section>
+<section class="card"><h2>Attendees (first name only)</h2>{% if attendee_names %}<ul>{% for n in attendee_names %}<li>{{ n }}</li>{% endfor %}</ul>{% else %}<p>No one yet—be the first to join.</p>{% endif %}</section>
+{% endblock %}
