@@ -265,6 +265,10 @@ def register_routes(app: Flask):
 
         return render_template("admin.html", activity_form=activity_form, ann_form=ann_form, activities=Activity.query.all(), zones=Zone.query.all())
 
+    @app.route("/gallery")
+    def gallery():
+        return render_template("gallery.html")
+
     @app.route("/health")
     def health():
         return "OK", 200
