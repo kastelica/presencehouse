@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Presence House | A Space for Human Connection{% endblock %}
+{% block content %}
+<main>
+<section class="hero shell">
+  <div class="hero-grid">
+    <div>
+      <h1>A space designed for real human connection.</h1>
+      <p>At Presence House, we believe in the quiet power of being together—intentional technology, calm social rhythm, and the warmth of a shared room.</p>
+      <div class="cta-row">
+        <a class="btn" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Support the $250,000 Campaign</a>
+        <a class="btn ghost" href="#founding-list">Join Founding List</a>
+      </div>
+      <a class="text-link" href="#philosophy">Explore the Concept →</a>
+    </div>
+    <div class="hero-image"></div>
+  </div>
+</section>
+
+<section id="campaign" class="campaign-band">
+  <div class="shell center">
+    <h2>Help us build the first Digital Hearth.</h2>
+    <div class="meter"><span style="width:33%"></span></div>
+    <p>$82,400 Raised · $250,000 Goal</p>
+    <a class="btn light" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Donate to the Campaign</a>
+  </div>
+</section>
+
+<section id="philosophy" class="shell two-col">
+  <article><h3>What is Presence House?</h3><p>Presence House is a physical third place—neither home nor office—where architecture encourages presence and technology stays intentional.</p></article>
+  <article><h3>Why it matters</h3><p>In an age of hyper-connectivity, we’ve never felt more isolated. Presence House is a return to the room we’re actually in.</p></article>
+</section>
+
+<section id="house" class="shell immersive-slider" data-slider>
+  <div class="slider-head"><h2>A Vision of the Space</h2></div>
+  <div class="slider-window">
+    <div class="slider-track" data-slider-track>
+      <article class="slide slide-one" data-slide><div class="slide-content"><h3>Quiet Lounge</h3><p>Soft light and reflective energy.</p></div></article>
+      <article class="slide slide-two" data-slide><div class="slide-content"><h3>Social Commons</h3><p>Warm tables for meaningful conversations.</p></div></article>
+      <article class="slide slide-three" data-slide><div class="slide-content"><h3>Café & Bar</h3><p>Slow tea, shared dinners, analog evenings.</p></div></article>
+    </div>
+    <button class="slider-btn prev" type="button" data-prev>‹</button>
+    <button class="slider-btn next" type="button" data-next>›</button>
+  </div>
+  <div class="slider-dots"><button class="dot active" data-dot></button><button class="dot" data-dot></button><button class="dot" data-dot></button></div>
+</section>
+
+
+<section class="shell faq" id="faq">
+  <h2>Frequently Asked Questions</h2>
+  <p class="faq-intro">A clear look at how Presence House works, who it is for, and why the digital layer stays intentionally minimal.</p>
+
+  <details open>
+    <summary>What is Presence House, exactly?</summary>
+    <p>Presence House is a modern third place: a physical social club designed for calm, meaningful connection. Think boutique café energy, library focus, and community club warmth under one roof.</p>
+  </details>
+
+  <details>
+    <summary>Is Presence House anti-phone or anti-technology?</summary>
+    <p>No. We are not anti-phone. We use technology intentionally. Phones are welcome for practical moments, but our spaces and activities are designed to prioritize attention, conversation, and presence.</p>
+  </details>
+
+  <details>
+    <summary>What kinds of things happen inside the house?</summary>
+    <p>Members can join silent reading hours, open conversation tables, community dinners, deep work sessions, analog creative hours, and themed social gatherings with light structure and a warm host culture.</p>
+  </details>
+
+  <details>
+    <summary>How does the companion app fit in?</summary>
+    <p>The app is intentionally minimal. It helps with check-in, activity selection, and room awareness—then gets out of the way. The app exists to help you return to the room.</p>
+  </details>
+
+  <details>
+    <summary>What is the fundraising campaign for?</summary>
+    <p>The current campaign funds architectural design, buildout, furnishings, and launch operations for the first Presence House location. Current campaign goal: <strong>$250,000</strong>.</p>
+  </details>
+
+  <details>
+    <summary>Where can I support the campaign?</summary>
+    <p>You can contribute directly at <a href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">spot.fund/j2brwjqsc</a>. Every contribution helps bring a human-first social space to life.</p>
+  </details>
+
+  <details>
+    <summary>What does joining the Founding List do?</summary>
+    <p>Founding List members receive early updates on location progress, membership release timing, campaign milestones, and opportunities to shape the opening chapter of the club.</p>
+  </details>
+
+  <details>
+    <summary>What membership pricing are you exploring?</summary>
+    <p>We are testing multiple pricing tiers to keep the club high-quality and sustainable. The Founding List form lets you share your preferred range so we can design plans that balance accessibility and excellence.</p>
+  </details>
+</section>
+
+<section id="voice" class="shell voice-grid">
+  <article><h4>“Finally a social space that doesn’t feel like a startup office.”</h4><p>— Architect & Early Backer</p></article>
+  <article><h4>“A sanctuary that values silence as much as conversation.”</h4><p>— Founding List Member</p></article>
+</section>
+
+<section id="founding-list" class="shell form-section">
+  <h2>Join the Founding List</h2>
+  <p>Be first to know about location reveals and membership openings. The app exists to help you return to the room.</p>
+  {% if formspree_endpoint %}<form method="POST" action="{{ formspree_endpoint }}">{% else %}<form method="POST" action="{{ url_for('founding_list') }}">{% endif %}
+    <div class="grid2"><input name="name" placeholder="Name" required><input type="email" name="email" placeholder="Email" required></div>
+    <select name="interest_type" required>
+      <option value="" disabled selected>Select Interest Type</option>
+      <option>Founding Membership</option>
+      <option>Volunteer Opportunities</option>
+      <option>Corporate Partnership</option>
+      <option>General Updates</option>
+    </select>
+    <select name="price_preference" required>
+      <option value="" disabled selected>Select Price Preference</option>
+      <option>$99 / month</option>
+      <option>$149 / month</option>
+      <option>$199+ / month</option>
+      <option>Unsure</option>
+    </select>
+    <textarea name="note" rows="4" placeholder="Optional Note"></textarea>
+    <button class="btn" type="submit">Submit to Founding List</button>
+  </form>
+</section>
+</main>
+{% endblock %}
