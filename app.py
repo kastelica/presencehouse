@@ -1,5 +1,7 @@
 import os
 import base64
+import threading
+import uuid
 import requests
 from google import genai
 from google.genai import types
@@ -15,6 +17,9 @@ from wtforms import IntegerField, PasswordField, SelectField, StringField, Submi
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 
 from models import Activity, ActivitySignup, Announcement, User, Zone, db
+
+GEN_JOBS = {}
+GEN_JOBS_LOCK = threading.Lock()
 
 SOCIAL_MODES = [
     "Open to conversation",
@@ -159,6 +164,48 @@ def generate_veo_video(api_key: str, model: str, prompt: str, image_url: str, as
     )
     return response
 
+
+
+
+def start_veo_video_job(api_key: str, project_id: str, model: str, prompt: str, image_url: str, storage_uri: str):
+    image_resp = requests.get(image_url, timeout=30)
+    image_resp.raise_for_status()
+    mime_type = (image_resp.headers.get("Content-Type") or "image/jpeg").split(";")[0].strip().lower()
+    if mime_type not in {"image/jpeg", "image/png"}:
+        mime_type = "image/jpeg"
+
+    image_b64 = base64.b64encode(image_resp.content).decode("utf-8")
+    endpoint = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{project_id}/locations/us-central1/publishers/google/models/{model}:predictLongRunning"
+    payload = {
+        "instances": [{
+            "prompt": prompt,
+            "image": {"bytesBase64Encoded": image_b64, "mimeType": mime_type},
+        }],
+        "parameters": {"storageUri": storage_uri, "sampleCount": 1, "durationSeconds": 8},
+    }
+    resp = requests.post(endpoint, params={"key": api_key}, json=payload, timeout=60)
+    resp.raise_for_status()
+    data = resp.json()
+    return data.get("name") or ""
+
+
+def poll_veo_operation(api_key: str, operation_name: str):
+    op_url = f"https://us-central1-aiplatform.googleapis.com/v1/{operation_name}"
+    r = requests.get(op_url, params={"key": api_key}, timeout=45)
+    r.raise_for_status()
+    return r.json()
+
+
+def extract_video_uri(operation_json: dict):
+    response = operation_json.get("response", {})
+    videos = response.get("videos") or response.get("video") or []
+    if isinstance(videos, dict):
+        videos = [videos]
+    for v in videos:
+        uri = v.get("uri") or v.get("gcsUri") or v.get("storageUri")
+        if uri:
+            return uri
+    return ""
 
 def register_routes(app: Flask):
     @app.route("/")
@@ -312,52 +359,74 @@ def register_routes(app: Flask):
 
         if veo_form.validate_on_submit() and veo_form.submit.data:
             api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
-            model = os.environ.get("GOOGLE_VEO_MODEL", "gemini-3.1-flash-image-preview")
+            model = os.environ.get("GOOGLE_VEO_MODEL", "veo-3.0-generate-001")
+            project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "").strip()
+            storage_uri = os.environ.get("GOOGLE_VEO_STORAGE_URI", "").strip()
             if not api_key:
-                flash("Missing GOOGLE_API_KEY. Add it to environment to enable generation.", "danger")
+                flash("Missing GOOGLE_API_KEY.", "danger")
+            elif not project_id:
+                flash("Missing GOOGLE_CLOUD_PROJECT.", "danger")
+            elif not storage_uri.startswith("gs://"):
+                flash("Set GOOGLE_VEO_STORAGE_URI to a gs:// bucket path for downloadable video output.", "danger")
             else:
                 urls = [u.strip() for u in (veo_form.image_urls.data or "").splitlines() if u.strip()]
                 if not urls:
                     flash("Provide at least one image URL.", "danger")
                     return redirect(url_for("admin"))
                 try:
-                    result = generate_veo_video(
+                    operation_name = start_veo_video_job(
                         api_key=api_key,
+                        project_id=project_id,
                         model=model,
                         prompt=veo_form.prompt.data.strip(),
                         image_url=urls[0],
-                        aspect_ratio=veo_form.aspect_ratio.data,
-                        image_size=veo_form.image_size.data,
+                        storage_uri=storage_uri,
                     )
-                    parts = []
-                    if getattr(result, "candidates", None):
-                        first = result.candidates[0]
-                        if getattr(first, "content", None) and getattr(first.content, "parts", None):
-                            parts = first.content.parts
-                    image_parts = [part for part in parts if getattr(part, "inline_data", None) is not None]
-                    if image_parts:
-                        flash(f"Image generated successfully with {model}.", "success")
-                    else:
-                        flash("Generation completed, but no image was returned.", "warning")
-                except requests.HTTPError as exc:
-                    detail = exc.response.text[:500] if exc.response is not None else str(exc)
-                    if exc.response is not None and exc.response.status_code == 404:
-                        try:
-                            veo_models = list_available_veo_models(api_key)
-                            names = [m.get("name", "") for m in veo_models][:8]
-                            if names:
-                                flash(f"Configured model '{model}' is unavailable. Try one of: {', '.join(names)}", "danger")
-                            else:
-                                flash("No Veo models were returned by ModelService.ListModels for this API key/project.", "danger")
-                        except requests.RequestException:
-                            flash(f"Veo request failed (404 model/method mismatch). Also failed to list models. Raw error: {detail}", "danger")
-                    else:
-                        flash(f"Veo request failed: {detail}", "danger")
+                    job_id = str(uuid.uuid4())[:8]
+                    with GEN_JOBS_LOCK:
+                        GEN_JOBS[job_id] = {
+                            "id": job_id,
+                            "model": model,
+                            "operation": operation_name,
+                            "status": "running",
+                            "video_uri": "",
+                            "error": "",
+                        }
+                    flash(f"Veo video job started ({job_id}). Refresh admin to check status.", "success")
                 except requests.RequestException as exc:
                     flash(f"Veo request failed: {exc}", "danger")
             return redirect(url_for("admin"))
 
-        return render_template("admin.html", activity_form=activity_form, ann_form=ann_form, veo_form=veo_form, activities=Activity.query.all(), zones=Zone.query.all())
+        if request.method == "POST" and request.form.get("action") == "refresh_veo_jobs":
+            api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
+            with GEN_JOBS_LOCK:
+                ids = list(GEN_JOBS.keys())
+            for jid in ids:
+                with GEN_JOBS_LOCK:
+                    job = GEN_JOBS.get(jid)
+                if not job or job.get("status") in {"done", "error"}:
+                    continue
+                try:
+                    op = poll_veo_operation(api_key, job["operation"])
+                    if op.get("done"):
+                        if op.get("error"):
+                            with GEN_JOBS_LOCK:
+                                GEN_JOBS[jid]["status"] = "error"
+                                GEN_JOBS[jid]["error"] = str(op.get("error"))
+                        else:
+                            uri = extract_video_uri(op)
+                            with GEN_JOBS_LOCK:
+                                GEN_JOBS[jid]["status"] = "done"
+                                GEN_JOBS[jid]["video_uri"] = uri
+                except requests.RequestException as exc:
+                    with GEN_JOBS_LOCK:
+                        GEN_JOBS[jid]["status"] = "error"
+                        GEN_JOBS[jid]["error"] = str(exc)
+            return redirect(url_for("admin"))
+
+        with GEN_JOBS_LOCK:
+            jobs = list(GEN_JOBS.values())
+        return render_template("admin.html", activity_form=activity_form, ann_form=ann_form, veo_form=veo_form, activities=Activity.query.all(), zones=Zone.query.all(), gen_jobs=jobs)
 
     @app.route("/gallery")
     @app.route("/gallery2", endpoint="gallery2")

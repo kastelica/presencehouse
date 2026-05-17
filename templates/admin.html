@@ -56,6 +56,28 @@
       <div class="card-head"><h2>Update zone occupancy/vibe</h2></div>
       <div class="stack-list">{% for z in zones %}<form method="POST" class="inline-form admin-inline"><input type="hidden" name="action" value="update_zone"><input type="hidden" name="zone_id" value="{{ z.id }}"><strong>{{ z.name }}</strong><input name="vibe" value="{{ z.vibe }}"><input name="occupancy" value="{{ z.occupancy }}"><button class="btn" type="submit">Update</button></form>{% endfor %}</div>
     </article>
+  
+
+    <article class="card app-card admin-block admin-block-wide">
+      <div class="card-head"><h2>Veo video jobs</h2></div>
+      <form method="POST" class="stack-form" style="margin-bottom:.6rem;">
+        <input type="hidden" name="action" value="refresh_veo_jobs">
+        <button class="btn" type="submit">Refresh job status</button>
+      </form>
+      <div class="stack-list">
+        {% for job in gen_jobs %}
+          <article class="list-item">
+            <p><strong>{{ job.id }}</strong> · {{ job.model }} · {{ job.status }}</p>
+            <p>Operation: {{ job.operation }}</p>
+            {% if job.video_uri %}<p><a href="{{ job.video_uri }}" target="_blank" rel="noopener noreferrer">Download/View video</a></p>{% endif %}
+            {% if job.error %}<p class="muted">Error: {{ job.error }}</p>{% endif %}
+          </article>
+        {% else %}
+          <p class="muted">No jobs yet.</p>
+        {% endfor %}
+      </div>
+    </article>
+
   </section>
 </main>
 {% endblock %}
