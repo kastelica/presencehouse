@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Register | Presence House{% endblock %}
+{% block content %}
+<section class="card form-card">
+<h1>Create your member account</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  {{ form.name.label }}{{ form.name() }}
+  {{ form.email.label }}{{ form.email() }}
+  {{ form.interests.label }}{{ form.interests(rows=3) }}
+  {{ form.social_mode.label }}{{ form.social_mode() }}
+  {{ form.password.label }}{{ form.password() }}
+  {{ form.submit(class_='btn') }}
+</form>
+</section>
+{% endblock %}
