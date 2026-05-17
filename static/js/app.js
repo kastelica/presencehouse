@@ -9,6 +9,8 @@
   const next = slider.querySelector('[data-next]');
   const dots = Array.from(slider.querySelectorAll('[data-dot]'));
 
+  if (!track || slides.length === 0) return;
+
   let index = 0;
   let timer;
 
@@ -34,6 +36,9 @@
   prev?.addEventListener('click', () => { goTo(index - 1); resetAutoplay(); });
   next?.addEventListener('click', () => { goTo(index + 1); resetAutoplay(); });
   dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); resetAutoplay(); }));
+
+  slider.addEventListener('mouseenter', () => clearInterval(timer));
+  slider.addEventListener('mouseleave', autoplay);
 
   render();
   autoplay();
