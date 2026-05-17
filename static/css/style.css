@@ -19,3 +19,21 @@ blockquote{margin:0;padding:1rem;border-radius:12px;background:#fff;border:1px s
 blockquote p{margin:0 0 .45rem}
 blockquote cite{font-style:normal;color:var(--stone);font-size:.92rem}
 @media(min-width:768px){.quote-grid{grid-template-columns:repeat(3,1fr)}}
+
+
+.immersive-slider{margin:1rem 0 1.5rem}
+.slider-head{padding:.3rem .2rem .8rem}
+.slider-window{position:relative;overflow:hidden;border-radius:20px;box-shadow:0 12px 30px rgba(31,59,45,.16)}
+.slider-track{display:flex;transition:transform .5s ease}
+.slide{min-width:100%;height:56vw;max-height:440px;display:flex;align-items:flex-end;padding:1rem;color:#fff;position:relative}
+.slide::before{content:'';position:absolute;inset:0;opacity:.92}
+.slide-content{position:relative;z-index:1;background:rgba(0,0,0,.28);padding:.8rem 1rem;border-radius:12px;backdrop-filter: blur(2px)}
+.slide-one::before{background:linear-gradient(130deg,#9db29b,#2f4f3f)}
+.slide-two::before{background:linear-gradient(130deg,#c59f73,#6d4c35)}
+.slide-three::before{background:linear-gradient(130deg,#7696a6,#2f5d67)}
+.slider-btn{position:absolute;top:50%;transform:translateY(-50%);border:none;background:rgba(0,0,0,.35);color:#fff;width:38px;height:38px;border-radius:999px;cursor:pointer}
+.slider-btn.prev{left:.6rem}.slider-btn.next{right:.6rem}
+.slider-dots{display:flex;justify-content:center;gap:.5rem;margin-top:.7rem}
+.dot{width:10px;height:10px;border-radius:50%;border:none;background:#c9beb0;cursor:pointer}
+.dot.active{background:var(--green)}
+@media(min-width:900px){.slide{height:440px}}
