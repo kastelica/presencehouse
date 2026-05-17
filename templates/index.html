@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Presence House | Real Human Connection{% endblock %}
+{% block content %}
+<section class="hero card">
+  <p class="eyebrow">Founding Campaign Goal: <strong>$250,000</strong></p>
+  <h1>A space designed for real human connection.</h1>
+  <p>Presence House is a modern third place for calm environments, intentional technology use, digital balance, and meaningful community.</p>
+  <div class="cta-row">
+    <a class="btn" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Support the $250K Campaign</a>
+    <a class="btn ghost" href="#founding-list">Join Founding List</a>
+    <a class="btn ghost" href="#concept">Explore the Concept</a>
+  </div>
+</section>
+
+<section class="feature-band warm">
+  <div class="feature-inner">
+  <h2>Help us open Presence House</h2>
+  <p>We're currently raising our founding build-out fund with a public goal of <strong>$250,000</strong>.</p>
+  <p>Your support helps create a warm, intentional social space where the app stays minimal and real life stays central.</p>
+  <a class="btn" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Donate on Spotfund</a>
+  </div>
+</section>
+
+<section id="concept" class="split-card"><h2>What is Presence House?</h2><p>A premium social club where people gather to read, work, converse, create, and share life in real time.</p></section>
+<section class="accent-panel"><h2>Why it matters</h2><p>We are over-connected but under-present. Presence House provides structure for genuine connection without social media dynamics.</p></section>
+
+<section class="immersive-slider" data-slider>
+  <div class="slider-head">
+    <h2>Step into the atmosphere</h2>
+    <p>Calm interiors, intentional design, and spaces that invite people back into real conversation.</p>
+  </div>
+  <div class="slider-window">
+    <div class="slider-track" data-slider-track>
+      <article class="slide slide-one" data-slide>
+        <div class="slide-content"><h3>Quiet Lounge</h3><p>Soft light, books, and reflective energy.</p></div>
+      </article>
+      <article class="slide slide-two" data-slide>
+        <div class="slide-content"><h3>Social Commons</h3><p>Warm tables designed for meaningful conversations.</p></div>
+      </article>
+      <article class="slide slide-three" data-slide>
+        <div class="slide-content"><h3>Café & Bar</h3><p>Slow tea, shared dinners, and analog evenings.</p></div>
+      </article>
+    </div>
+    <button class="slider-btn prev" type="button" aria-label="Previous image" data-prev>‹</button>
+    <button class="slider-btn next" type="button" aria-label="Next image" data-next>›</button>
+  </div>
+  <div class="slider-dots">
+    <button class="dot active" type="button" data-dot aria-label="Slide 1"></button>
+    <button class="dot" type="button" data-dot aria-label="Slide 2"></button>
+    <button class="dot" type="button" data-dot aria-label="Slide 3"></button>
+  </div>
+</section>
+
+<section class="icon-grid"><article><h3>Reading lounges</h3><p>Quiet companionship and reflective energy.</p></article><article><h3>Conversation tables</h3><p>Guided social prompts and warm discussion.</p></article><article><h3>Deep work & creative</h3><p>Focus sessions, analog making, and workshops.</p></article></section>
+<section class="membership-strip"><h2>Membership preview</h2><p>Founding members receive early access, shaping input, and a grounded community committed to intentional living.</p><a class="btn" href="#founding-list">See founding options</a></section>
+<section class="minimal-callout"><h2>Minimal companion app</h2><p>The app exists to help you return to the room.</p><ul><li>No infinite feeds</li><li>No likes or popularity scores</li><li>No addictive notification loops</li></ul></section>
+
+<section class="card">
+  <h2>Founding member voices</h2>
+  <div class="quote-grid">
+    <blockquote>
+      <p>“I want a place where people can be fully present without pressure to perform online.”</p>
+      <cite>— Early supporter, Austin</cite>
+    </blockquote>
+    <blockquote>
+      <p>“Presence House feels like a modern social club with the calm of a boutique library.”</p>
+      <cite>— Founding list member, Brooklyn</cite>
+    </blockquote>
+    <blockquote>
+      <p>“This is the first community concept that treats technology as a tool, not the destination.”</p>
+      <cite>— Creative professional, Chicago</cite>
+    </blockquote>
+  </div>
+</section>
+
+<section id="founding-list" class="card">
+  <h2>Founding list form</h2>
+  <p class="muted">Want to support now? Donate at <a href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">spot.fund/j2brwjqsc</a> toward the <strong>$250,000</strong> goal.</p>
+  {% if formspree_endpoint %}
+  <form method="POST" action="{{ formspree_endpoint }}">
+  {% else %}
+  <form method="POST" action="{{ url_for('founding_list') }}">
+  {% endif %}
+    <input name="name" placeholder="Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input name="interest_type" placeholder="Interest type (community, workspace, events)" required>
+    <input name="price_preference" placeholder="Price preference" required>
+    <textarea name="note" placeholder="Optional note"></textarea>
+    <button class="btn" type="submit">Join Founding List</button>
+  </form>
+</section>
+{% endblock %}

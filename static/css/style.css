@@ -1,0 +1,55 @@
+:root {--bg:#f3ecdf;--card:#fffaf2;--green:#1f3b2d;--stone:#5d5d57;--accent:#d4b483;}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--green);line-height:1.5}
+.site-header{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:#f8f1e5;position:sticky;top:0}
+.site-header a{color:var(--green);text-decoration:none;margin-left:.8rem}.brand{font-weight:700}
+.container{max-width:980px;margin:0 auto;padding:1rem}.card{background:var(--card);border-radius:18px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 8px 24px rgba(31,59,45,.08)}
+h1,h2,h3{line-height:1.2}.hero h1{font-size:2rem}.muted{color:var(--stone)}
+.btn{display:inline-block;background:var(--green);color:#fff;padding:.65rem 1rem;border-radius:12px;border:none;text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--green);color:var(--green)}
+form{display:grid;gap:.7rem}input,select,textarea{width:100%;padding:.7rem;border-radius:10px;border:1px solid #cfc7bb;background:#fff}
+.inline-form{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}.pill{background:var(--accent);padding:.2rem .55rem;border-radius:999px}
+.flash{padding:.7rem;border-radius:10px;margin:.5rem 0}.flash.success{background:#e4f2e8}.flash.warning{background:#fff4d6}.flash.danger{background:#f8dedd}.flash.info{background:#ddebf8}
+@media(min-width:768px){.hero h1{font-size:2.6rem}}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.8rem}
+.eyebrow{letter-spacing:.06em;text-transform:uppercase;color:var(--stone);font-size:.8rem;margin:0 0 .5rem}
+
+.quote-grid{display:grid;gap:.8rem}
+blockquote{margin:0;padding:1rem;border-radius:12px;background:#fff;border:1px solid #e7dccb}
+blockquote p{margin:0 0 .45rem}
+blockquote cite{font-style:normal;color:var(--stone);font-size:.92rem}
+@media(min-width:768px){.quote-grid{grid-template-columns:repeat(3,1fr)}}
+
+
+.immersive-slider{margin:1rem 0 1.5rem}
+.slider-head{padding:.3rem .2rem .8rem}
+.slider-window{position:relative;overflow:hidden;border-radius:20px;box-shadow:0 12px 30px rgba(31,59,45,.16)}
+.slider-track{display:flex;transition:transform .5s ease}
+.slide{min-width:100%;height:56vw;max-height:440px;display:flex;align-items:flex-end;padding:1rem;color:#fff;position:relative}
+.slide::before{content:'';position:absolute;inset:0;opacity:.92}
+.slide-content{position:relative;z-index:1;background:rgba(0,0,0,.28);padding:.8rem 1rem;border-radius:12px;backdrop-filter: blur(2px)}
+.slide-one::before{background:linear-gradient(130deg,#9db29b,#2f4f3f)}
+.slide-two::before{background:linear-gradient(130deg,#c59f73,#6d4c35)}
+.slide-three::before{background:linear-gradient(130deg,#7696a6,#2f5d67)}
+.slider-btn{position:absolute;top:50%;transform:translateY(-50%);border:none;background:rgba(0,0,0,.35);color:#fff;width:38px;height:38px;border-radius:999px;cursor:pointer}
+.slider-btn.prev{left:.6rem}.slider-btn.next{right:.6rem}
+.slider-dots{display:flex;justify-content:center;gap:.5rem;margin-top:.7rem}
+.dot{width:10px;height:10px;border-radius:50%;border:none;background:#c9beb0;cursor:pointer}
+.dot.active{background:var(--green)}
+@media(min-width:900px){.slide{height:440px}}
+
+
+/* Varied landing sections to avoid repetitive card pills */
+.feature-band{border-radius:22px;padding:1.2rem;background:linear-gradient(120deg,#f3e1ca,#efe8dc);margin-bottom:1rem}
+.feature-inner{max-width:780px}
+.split-card{display:grid;gap:.7rem;background:#f7f1e8;border-left:6px solid var(--accent);border-radius:18px;padding:1rem;margin-bottom:1rem}
+.accent-panel{background:linear-gradient(135deg,#294535,#1f3b2d);color:#fff;border-radius:18px;padding:1.1rem;margin-bottom:1rem}
+.icon-grid{display:grid;gap:.7rem;grid-template-columns:1fr;margin-bottom:1rem}
+.icon-grid article{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:1rem}
+.membership-strip{display:flex;flex-direction:column;gap:.6rem;background:#e7d2b3;border-radius:18px;padding:1rem;margin-bottom:1rem}
+.minimal-callout{background:#f3f8f4;border:1px solid #d5e6d8;border-radius:18px;padding:1rem;margin-bottom:1rem}
+.minimal-callout ul{margin:.4rem 0 0 1rem;padding:0}
+.card.alt{background:#fff7ea}
+.card.deep{background:#eef3ef}
+.card.soft{background:#f5f2ee}
+@media(min-width:768px){.icon-grid{grid-template-columns:repeat(3,1fr)}}
