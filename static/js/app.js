@@ -55,3 +55,30 @@
     toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
   });
 })();
+
+
+(function trackMetaEvents() {
+  if (typeof window.fbq !== 'function') return;
+
+  document.querySelectorAll('a[href*="spot.fund/j2brwjqsc"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      fbq('trackCustom', 'DonateLinkClick', {
+        destination: link.getAttribute('href') || '',
+        text: (link.textContent || '').trim(),
+      });
+    });
+  });
+
+  const foundingForm = document.querySelector('#founding-list form');
+  foundingForm?.addEventListener('submit', () => {
+    fbq('track', 'Lead', { content_name: 'Founding List Form Submit' });
+    fbq('trackCustom', 'FoundingListSubmit', { source: 'homepage_form' });
+  });
+
+  const successFlash = document.querySelector('.flash.success');
+  const flashMessage = (successFlash?.textContent || '').trim();
+  if (flashMessage && /thanks|submit|supporting|received/i.test(flashMessage)) {
+    fbq('track', 'CompleteRegistration', { status: 'success_flash' });
+    fbq('trackCustom', 'FoundingListConfirmed', { message: flashMessage });
+  }
+})();
