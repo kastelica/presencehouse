@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Admin | Presence House{% endblock %}
+{% block content %}
+<section class="card"><h1>Admin panel</h1><p>Keep the digital layer minimal and useful.</p></section>
+<section class="card form-card">
+  <h2>Create activity</h2>
+  <form method="POST">
+    {{ activity_form.hidden_tag() }}
+    {{ activity_form.title.label }}{{ activity_form.title() }}
+    {{ activity_form.description.label }}{{ activity_form.description(rows=3) }}
+    {{ activity_form.zone.label }}{{ activity_form.zone() }}
+    {{ activity_form.start_time.label }}{{ activity_form.start_time() }}
+    {{ activity_form.end_time.label }}{{ activity_form.end_time() }}
+    {{ activity_form.capacity.label }}{{ activity_form.capacity() }}
+    {{ activity_form.status.label }}{{ activity_form.status() }}
+    {{ activity_form.activity_type.label }}{{ activity_form.activity_type() }}
+    {{ activity_form.submit(class_='btn') }}
+  </form>
+</section>
+<section class="card"><h2>Edit activity status</h2>{% for a in activities %}<form method="POST" class="inline-form"><input type="hidden" name="action" value="update_activity_status"><input type="hidden" name="activity_id" value="{{ a.id }}"><strong>{{ a.title }}</strong><select name="status"><option {% if a.status=='Open' %}selected{% endif %}>Open</option><option {% if a.status=='Filling' %}selected{% endif %}>Filling</option><option {% if a.status=='Full' %}selected{% endif %}>Full</option></select><button class="btn" type="submit">Save</button></form>{% endfor %}</section>
+<section class="card form-card"><h2>Create announcement</h2><form method="POST">{{ ann_form.hidden_tag() }}{{ ann_form.title.label }}{{ ann_form.title() }}{{ ann_form.body.label }}{{ ann_form.body(rows=3) }}{{ ann_form.submit(class_='btn') }}</form></section>
+<section class="card"><h2>Update zone occupancy/vibe</h2>{% for z in zones %}<form method="POST" class="inline-form"><input type="hidden" name="action" value="update_zone"><input type="hidden" name="zone_id" value="{{ z.id }}"><strong>{{ z.name }}</strong><input name="vibe" value="{{ z.vibe }}"><input name="occupancy" value="{{ z.occupancy }}"><button class="btn" type="submit">Update</button></form>{% endfor %}</section>
+{% endblock %}
