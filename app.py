@@ -269,6 +269,11 @@ def register_routes(app: Flask):
     def gallery():
         return render_template("gallery.html")
 
+
+    @app.route("/gallery2")
+    def gallery2():
+        return render_template("gallery2.html")
+
     @app.route("/health")
     def health():
         return "OK", 200
