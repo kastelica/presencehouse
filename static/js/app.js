@@ -82,3 +82,14 @@
     fbq('trackCustom', 'FoundingListConfirmed', { message: flashMessage });
   }
 })();
+
+
+(function removeLegacyGallery2NavLink() {
+  document.querySelectorAll('a[href*="gallery2"], a').forEach((link) => {
+    const label = (link.textContent || '').trim().toLowerCase();
+    const href = (link.getAttribute('href') || '').toLowerCase();
+    if (label === 'gallery2' || label === 'galery2' || href.includes('gallery2')) {
+      link.remove();
+    }
+  });
+})();
