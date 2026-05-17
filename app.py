@@ -329,7 +329,12 @@ def register_routes(app: Flask):
                         aspect_ratio=veo_form.aspect_ratio.data,
                         image_size=veo_form.image_size.data,
                     )
-                    image_parts = [part for part in (result.parts or []) if getattr(part, "inline_data", None) is not None]
+                    parts = []
+                    if getattr(result, "candidates", None):
+                        first = result.candidates[0]
+                        if getattr(first, "content", None) and getattr(first.content, "parts", None):
+                            parts = first.content.parts
+                    image_parts = [part for part in parts if getattr(part, "inline_data", None) is not None]
                     if image_parts:
                         flash(f"Image generated successfully with {model}.", "success")
                     else:
