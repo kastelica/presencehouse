@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Presence House{% endblock %}
+{% block content %}
+<section class="card"><h1>Welcome, {{ current_user.first_name }}</h1><p>The app exists to help you return to the room.</p></section>
+<section class="card">
+  <h2>Current social mode</h2>
+  <form method="POST" class="inline-form">
+    <select name="social_mode">{% for mode in social_modes %}<option value="{{ mode }}" {% if current_user.social_mode == mode %}selected{% endif %}>{{ mode }}</option>{% endfor %}</select>
+    <button class="btn" type="submit">Update</button>
+  </form>
+</section>
+<section class="card alt"><h2>Announcements</h2>{% for a in announcements %}<article><strong>{{ a.title }}</strong><p>{{ a.body }}</p></article>{% endfor %}</section>
+<section class="card deep"><h2>Today's activities</h2>{% for activity in activities %}<article><h3><a href="{{ url_for('activity_detail', activity_id=activity.id) }}">{{ activity.title }}</a></h3><p>{{ activity.zone }} · {{ activity.start_time.strftime('%I:%M %p') }}–{{ activity.end_time.strftime('%I:%M %p') }}</p><p>{{ activity.status }} · Seats open: {{ activity.seats_open }}</p>{% if activity.id in my_signups %}<span class="pill">You're attending</span>{% endif %}</article>{% endfor %}</section>
+<section class="card soft"><h2>Live room status</h2>{% for zone in zones %}<article><h3>{{ zone.name }}</h3><p>{{ zone.description }}</p><p>Vibe: {{ zone.vibe }} · Occupancy: {{ zone.occupancy }}</p><p>Phone expectation: {{ zone.phone_expectation }}</p></article>{% endfor %}</section>
+{% endblock %}
