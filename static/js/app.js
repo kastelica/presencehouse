@@ -84,11 +84,15 @@
   });
 
   const successMessage = document.querySelector('#founding-list-status');
+  const submittedFlag = new URLSearchParams(window.location.search).get('submitted') === '1';
+  if (submittedFlag) {
+    trackFb('track', 'CompleteRegistration', { status: 'non_ajax_post_submit' });
+  }
   if (successMessage && !successMessage.hidden && (successMessage.textContent || '').trim()) {
     trackFb('track', 'CompleteRegistration', { status: 'success_visible' });
-    trackFb('trackCustom', 'FoundingListConfirmed', { source: 'success_message_visible' });
+    trackFb('trackCustom', 'FoundingListConfirmed', { source: submittedFlag ? 'non_ajax_post_submit' : 'success_message_visible' });
   }
-})();;
+})();
 
 
 (function removeLegacyGallery2NavLink() {
