@@ -268,7 +268,7 @@ def register_routes(app: Flask):
     @app.route("/gallery")
     @app.route("/gallery2", endpoint="gallery2")
     def gallery():
-        return render_template("gallery.html")
+        return render_template("gallery2.html")
 
     @app.route("/health")
     def health():
