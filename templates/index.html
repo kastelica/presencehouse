@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Presence House | Real Human Connection{% endblock %}
+{% block content %}
+<section class="hero card">
+  <p class="eyebrow">Founding Campaign Goal: <strong>$250,000</strong></p>
+  <h1>A space designed for real human connection.</h1>
+  <p>Presence House is a modern third place for calm environments, intentional technology use, digital balance, and meaningful community.</p>
+  <div class="cta-row">
+    <a class="btn" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Support the $250K Campaign</a>
+    <a class="btn ghost" href="#founding-list">Join Founding List</a>
+    <a class="btn ghost" href="#concept">Explore the Concept</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Help us open Presence House</h2>
+  <p>We're currently raising our founding build-out fund with a public goal of <strong>$250,000</strong>.</p>
+  <p>Your support helps create a warm, intentional social space where the app stays minimal and real life stays central.</p>
+  <a class="btn" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Donate on Spotfund</a>
+</section>
+
+<section id="concept" class="card"><h2>What is Presence House?</h2><p>A premium social club where people gather to read, work, converse, create, and share life in real time.</p></section>
+<section class="card"><h2>Why it matters</h2><p>We are over-connected but under-present. Presence House provides structure for genuine connection without social media dynamics.</p></section>
+<section class="card"><h2>What happens inside</h2><p>Reading lounges, conversation tables, deep work sessions, dinners, analog creative workshops, and guided social hours.</p></section>
+<section class="card"><h2>Membership preview</h2><p>Founding members receive early access, shaping input, and a grounded community committed to intentional living.</p></section>
+<section class="card"><h2>Minimal companion app</h2><p>The app exists to help you return to the room. No infinite feeds, no likes, no popularity metrics.</p></section>
+<section id="founding-list" class="card">
+  <h2>Founding list form</h2>
+  <p class="muted">Want to support now? Donate at <a href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">spot.fund/j2brwjqsc</a> toward the <strong>$250,000</strong> goal.</p>
+  {% if formspree_endpoint %}
+  <form method="POST" action="{{ formspree_endpoint }}">
+  {% else %}
+  <form method="POST" action="{{ url_for('founding_list') }}">
+  {% endif %}
+    <input name="name" placeholder="Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input name="interest_type" placeholder="Interest type (community, workspace, events)" required>
+    <input name="price_preference" placeholder="Price preference" required>
+    <textarea name="note" placeholder="Optional note"></textarea>
+    <button class="btn" type="submit">Join Founding List</button>
+  </form>
+</section>
+{% endblock %}

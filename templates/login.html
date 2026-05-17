@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login | Presence House{% endblock %}
+{% block content %}
+<section class="card form-card">
+<h1>Member sign in</h1>
+<p class="muted">The app exists to help you return to the room.</p>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  {{ form.email.label }}{{ form.email() }}
+  {{ form.password.label }}{{ form.password() }}
+  {{ form.submit(class_='btn') }}
+</form>
+</section>
+{% endblock %}
