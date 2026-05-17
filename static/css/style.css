@@ -67,3 +67,36 @@ h1,h2,h3,h4,.brand{font-family:'Libre Caslon Text',serif}
   .more-toggle{align-items:flex-start;line-height:1.35}
   .more-toggle input[type="checkbox"]{margin-top:.15rem}
 }
+
+/* Dashboard/Admin overhaul */
+.card{background:#fff;border:1px solid #e2ddd4;border-radius:20px;padding:1.1rem}
+.app-shell{padding:1.2rem 20px 2.5rem}
+.app-hero{margin-bottom:1rem}
+.app-hero h1{margin:.1rem 0 .45rem}
+.app-hero p{margin:0;color:var(--muted)}
+.app-grid,.admin-grid{display:grid;gap:1rem}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
+.card-head h2{margin:0}
+.app-card{box-shadow:0 8px 22px rgba(0,0,0,.04)}
+.app-card-wide,.admin-block-wide{grid-column:1/-1}
+.stack-list{display:grid;gap:.6rem}
+.list-item{padding:.8rem;border:1px solid #e8e3da;border-radius:14px;background:#fcfbf9}
+.list-item h3{margin:.1rem 0 .3rem;font-size:1.07rem}
+.list-item p{margin:.18rem 0;color:#44433f}
+.mode-form{display:flex;gap:.6rem;align-items:center}
+.inline-form.admin-inline{display:grid;grid-template-columns:1.5fr 1fr auto;gap:.6rem;align-items:center;padding:.65rem;border:1px solid #ece7df;border-radius:12px;background:#fcfbf9}
+.stack-form{display:grid;gap:.55rem}
+.muted{color:var(--muted)}
+.pill{display:inline-block;padding:.25rem .55rem;border-radius:999px;background:#e4f2e8;color:#1a5230;font-weight:600;font-size:.84rem}
+
+@media(min-width:900px){
+  .app-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:899px){
+  .app-shell{padding:1rem 16px 2rem}
+  .mode-form{flex-direction:column;align-items:stretch}
+  .inline-form.admin-inline{grid-template-columns:1fr}
+  .inline-form.admin-inline .btn{width:100%}
+}
