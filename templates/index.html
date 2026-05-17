@@ -6,7 +6,7 @@
   <div class="hero-grid">
     <div>
       <h1>A space designed for real human connection.</h1>
-      <p>At Presence House, we believe in the quiet power of being together—intentional technology, calm social rhythm, and the warmth of a shared room. Our first location is planned for Carlsbad, California, and we are currently in Phase 1: donation fundraising to make it happen.</p>
+      <p>At Presence House, we believe in the quiet power of being together—fewer screens, calm social rhythm, and the warmth of a shared room. Our first location is planned for Carlsbad, California, and we are currently in Phase 1: donation fundraising to make it happen.</p>
       <div class="cta-row">
         <a class="btn" href="http://spot.fund/9s54l27sc" target="_blank" rel="noopener noreferrer">Support the $250,000 Campaign</a>
         <a class="btn ghost" href="#founding-list">Join Founding List</a>
@@ -27,7 +27,7 @@
 </section>
 
 <section id="philosophy" class="shell two-col">
-  <article><h3>What is Presence House?</h3><p>Presence House is a physical third place—neither home nor office—where architecture encourages presence and technology stays intentional. The first launch city is Carlsbad, CA, beginning with our Phase 1 donation campaign.</p></article>
+  <article><h3>What is Presence House?</h3><p>Presence House is a physical third place—neither home nor office—where architecture encourages presence and fewer screen-first habits. The first launch city is Carlsbad, CA, beginning with our Phase 1 donation campaign.</p></article>
   <article><h3>Why it matters</h3><p>In an age of hyper-connectivity, we’ve never felt more isolated. Presence House is a return to the room we’re actually in.</p></article>
 </section>
 
@@ -48,7 +48,7 @@
 
 <section class="shell faq" id="faq">
   <h2>Frequently Asked Questions</h2>
-  <p class="faq-intro">A clear look at how Presence House works, who it is for, and why the digital layer stays intentionally minimal.</p>
+  <p class="faq-intro">A clear look at how Presence House works, who it is for, and how the space helps people spend less time on screens.</p>
 
   <details open>
     <summary>What is Presence House, exactly?</summary>
@@ -56,8 +56,8 @@
   </details>
 
   <details>
-    <summary>Is Presence House anti-phone or anti-technology?</summary>
-    <p>No. We are not anti-phone. We use technology intentionally. Phones are welcome for practical moments, but our spaces and activities are designed to prioritize attention, conversation, and presence.</p>
+    <summary>What is your screen-use goal inside Presence House?</summary>
+    <p>Our goal is simple: help people spend less time looking at screens while in the building, and more time in conversation, community, and the room itself.</p>
   </details>
 
   <details>
@@ -67,7 +67,7 @@
 
   <details>
     <summary>How does the companion app fit in?</summary>
-    <p>The app is intentionally minimal. It helps with check-in, activity selection, and room awareness—then gets out of the way. The app exists to help you return to the room.</p>
+    <p>The app stays lightweight for check-in and scheduling, then gets out of the way so people can spend less time on screens inside the building.</p>
   </details>
 
   <details>
@@ -148,7 +148,7 @@
 
 <section id="founding-list" class="shell form-section">
   <h2>Join the Founding List</h2>
-  <p>Be first to know about location reveals and membership openings. The app exists to help you return to the room.</p>
+  <p>Be first to know about location reveals and membership openings. Our on-site goal is fewer screens and more real-world connection.</p>
   {% if request.args.get("submitted") == "1" %}<div class="inline-success" id="founding-list-status">Thanks — your Founding List form was received successfully.</div>{% else %}<div id="founding-list-status" class="inline-success" hidden></div>{% endif %}
   {% if formspree_endpoint %}<form id="founding-list-form" method="POST" action="{{ formspree_endpoint }}">{% else %}<form id="founding-list-form" method="POST" action="{{ url_for('founding_list') }}">{% endif %}
     <div class="grid2"><input name="name" placeholder="Name" required><input type="email" name="email" placeholder="Email" required></div>
