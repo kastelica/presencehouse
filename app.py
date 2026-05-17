@@ -334,12 +334,14 @@ def register_routes(app: Flask):
 
 def seed_data():
     """Seed demo content idempotently and safely across concurrent worker boots."""
-    if not User.query.filter_by(email="admin@presencehouse.club").first():
-        admin = User(name="Presence Admin", email="admin@presencehouse.club", interests="Community", social_mode="Open to conversation", is_admin=True)
-        admin.set_password("presence123")
-        db.session.add(admin)
+    try:
+        with db.session.no_autoflush:
+            if not User.query.filter_by(email="admin@presencehouse.club").first():
+                admin = User(name="Presence Admin", email="admin@presencehouse.club", interests="Community", social_mode="Open to conversation", is_admin=True)
+                admin.set_password("presence123")
+                db.session.add(admin)
 
-    zone_samples = [
+            zone_samples = [
         ("Quiet Lounge", "Calm reading and reflection", "Soft-spoken, reflective", "Light", "Silent and tucked away"),
         ("Social Commons", "Conversation-friendly central room", "Warm and social", "Moderate", "Quick checks only"),
         ("Focus Rooms", "Heads-down work corners", "Quiet concentration", "Steady", "No calls"),
@@ -347,12 +349,12 @@ def seed_data():
         ("Café & Bar", "Tea, coffee, and intentional chats", "Gentle hum", "Moderate", "Use briefly between conversations"),
         ("Outdoor Space", "Fresh air and walking loops", "Restorative", "Open", "Minimal"),
     ]
-    for name, description, vibe, occupancy, phone_expectation in zone_samples:
-        if not Zone.query.filter_by(name=name).first():
-            db.session.add(Zone(name=name, description=description, vibe=vibe, occupancy=occupancy, phone_expectation=phone_expectation))
+            for name, description, vibe, occupancy, phone_expectation in zone_samples:
+                if not Zone.query.filter_by(name=name).first():
+                    db.session.add(Zone(name=name, description=description, vibe=vibe, occupancy=occupancy, phone_expectation=phone_expectation))
 
-    now = datetime.now().replace(second=0, microsecond=0)
-    activity_samples = [
+            now = datetime.now().replace(second=0, microsecond=0)
+            activity_samples = [
         ("Silent Reading Lounge", "Bring a book and share quiet company.", "Quiet Lounge", 0, 90, 18, "Open", "Reflection"),
         ("Open Conversation Table", "Meet someone new over guided prompts.", "Social Commons", 30, 90, 10, "Open", "Social"),
         ("Chess & Strategy Night", "Analog strategy and friendly matches.", "Activity Hall", 120, 180, 16, "Filling", "Games"),
@@ -362,22 +364,21 @@ def seed_data():
         ("Philosophy Circle", "Slow dialogue around one timeless question.", "Quiet Lounge", 300, 90, 10, "Open", "Discussion"),
         ("Phone-Light Social Hour", "Easy social time with phones tucked away.", "Social Commons", 360, 90, 20, "Open", "Social"),
     ]
-    for title, desc, zone, offset, dur, cap, status, a_type in activity_samples:
-        if not Activity.query.filter_by(title=title, zone=zone).first():
-            start = now + timedelta(minutes=offset)
-            db.session.add(Activity(title=title, description=desc, zone=zone, start_time=start, end_time=start + timedelta(minutes=dur), capacity=cap, status=status, activity_type=a_type))
+            for title, desc, zone, offset, dur, cap, status, a_type in activity_samples:
+                if not Activity.query.filter_by(title=title, zone=zone).first():
+                    start = now + timedelta(minutes=offset)
+                    db.session.add(Activity(title=title, description=desc, zone=zone, start_time=start, end_time=start + timedelta(minutes=dur), capacity=cap, status=status, activity_type=a_type))
 
-    announcement_samples = [
+            announcement_samples = [
         ("Welcome to Presence House", "Welcome to Presence House—this app exists to help you return to the room."),
         ("Phone guidance", "Phones stay tucked away during activities unless otherwise noted."),
         ("Tonight's dinner", "Community dinner starts at 7:30 PM in Café & Bar."),
         ("New member tip", "New members can begin at the Open Conversation Table."),
     ]
-    for title, body in announcement_samples:
-        if not Announcement.query.filter_by(title=title).first():
-            db.session.add(Announcement(title=title, body=body))
+            for title, body in announcement_samples:
+                if not Announcement.query.filter_by(title=title).first():
+                    db.session.add(Announcement(title=title, body=body))
 
-    try:
         db.session.commit()
     except IntegrityError:
         # Another worker likely seeded simultaneously; rollback and continue boot.
