@@ -40,8 +40,10 @@ select{width:100%;padding:.8rem;border-radius:14px;border:1px solid #cbc6bc;back
 .inline-success{margin:.7rem 0 1rem;padding:.7rem .9rem;border-radius:12px;background:#e4f2e8;color:#12351e;border:1px solid #b9ddc0;font-weight:500}
 @media(max-width:899px){
   .shell{padding:0 16px}
-  .hero{padding:2.1rem 0 2.4rem}
-  .hero h1,.hero h2{line-height:1.18;margin:0 0 .7rem}
+  .hero{padding:1.1rem 0 2.4rem}
+  .hero-grid{display:flex;flex-direction:column-reverse;gap:1rem}
+  .hero-image{min-height:250px;border-radius:0;margin:0 -16px}
+  .hero h1,.hero h2{line-height:1.18;margin:.6rem 0 .7rem}
   .hero p{margin:.2rem 0 1rem}
   .hero .cta-row .btn{width:100%;text-align:center}
   .text-link{margin-top:.7rem}
