@@ -58,30 +58,37 @@
 
 
 (function trackMetaEvents() {
-  if (typeof window.fbq !== 'function') return;
+  function trackFb(eventType, eventName, payload) {
+    if (typeof window.fbq !== 'function') return false;
+    if (eventType === 'trackCustom') {
+      window.fbq('trackCustom', eventName, payload || {});
+      return true;
+    }
+    window.fbq('track', eventName, payload || {});
+    return true;
+  }
 
   document.querySelectorAll('a[href*="spot.fund/9s54l27sc"]').forEach((link) => {
     link.addEventListener('click', () => {
-      fbq('trackCustom', 'DonateLinkClick', {
+      trackFb('trackCustom', 'DonateLinkClick', {
         destination: link.getAttribute('href') || '',
         text: (link.textContent || '').trim(),
       });
     });
   });
 
-  const foundingForm = document.querySelector('#founding-list form');
+  const foundingForm = document.querySelector('#founding-list-form');
   foundingForm?.addEventListener('submit', () => {
-    fbq('track', 'Lead', { content_name: 'Founding List Form Submit' });
-    fbq('trackCustom', 'FoundingListSubmit', { source: 'homepage_form' });
+    trackFb('track', 'Lead', { content_name: 'Founding List Form Submit', source: 'homepage_form' });
+    trackFb('trackCustom', 'FoundingListSubmit', { source: 'homepage_form' });
   });
 
-  const successFlash = document.querySelector('.flash.success');
-  const flashMessage = (successFlash?.textContent || '').trim();
-  if (flashMessage && /thanks|submit|supporting|received/i.test(flashMessage)) {
-    fbq('track', 'CompleteRegistration', { status: 'success_flash' });
-    fbq('trackCustom', 'FoundingListConfirmed', { message: flashMessage });
+  const successMessage = document.querySelector('#founding-list-status');
+  if (successMessage && !successMessage.hidden && (successMessage.textContent || '').trim()) {
+    trackFb('track', 'CompleteRegistration', { status: 'success_visible' });
+    trackFb('trackCustom', 'FoundingListConfirmed', { source: 'success_message_visible' });
   }
-})();
+})();;
 
 
 (function removeLegacyGallery2NavLink() {
@@ -125,6 +132,7 @@
       if (typeof window.fbq === 'function') {
         fbq('track', 'Lead', { content_name: 'Founding List Form Submit' });
         fbq('trackCustom', 'FoundingListConfirmed', { source: 'formspree_ajax' });
+        fbq('track', 'CompleteRegistration', { status: 'formspree_ajax_success' });
       }
       if (typeof window.gtag === 'function') {
         gtag('event', 'form_submit_success', { form_name: 'founding_list', source: 'formspree_ajax' });

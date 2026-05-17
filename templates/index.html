@@ -6,7 +6,7 @@
   <div class="hero-grid">
     <div>
       <h1>A space designed for real human connection.</h1>
-      <p>Presence House is a space for real connection—fewer screens, calm social rhythm, and the warmth of a shared room. First location: Carlsbad, CA. We are in Phase 1 fundraising.</p>
+      <p>Presence House is a space for real connection - fewer screens, in person activities and games, with the warmth of a nice shared room. First location: Carlsbad, CA. We are in Phase 1 fundraising.</p>
       <div class="cta-row">
         <a class="btn" href="http://spot.fund/9s54l27sc" target="_blank" rel="noopener noreferrer">Support the $250,000 Campaign</a>
         <a class="btn ghost" href="#founding-list">Join Founding List</a>
@@ -153,13 +153,18 @@
   {% if formspree_endpoint %}<form id="founding-list-form" method="POST" action="{{ formspree_endpoint }}">{% else %}<form id="founding-list-form" method="POST" action="{{ url_for('founding_list') }}">{% endif %}
     <div class="grid2"><input name="name" placeholder="Name" required><input type="email" name="email" placeholder="Email" required></div>
     <input type="tel" name="phone" placeholder="Phone Number" inputmode="tel">
-    <select name="interest_type" required>
-      <option value="" disabled selected>Select Interest Type</option>
-      <option>Founding Membership</option>
-      <option>Volunteer Opportunities</option>
-      <option>Corporate Partnership</option>
-      <option>General Updates</option>
+    <select name="interest_type[]" id="interest-type" multiple size="7" required>
+      <option value="Founding Membership">Founding Membership</option>
+      <option value="General Updates">General Updates</option>
+      <option value="Volunteer Opportunities">Volunteer Opportunities</option>
+      <option value="Events & Workshops">Events & Workshops</option>
+      <option value="Membership Waitlist">Membership Waitlist</option>
+      <option value="Corporate Partnership">Corporate Partnership</option>
+      <option value="Donor Circle">Donor Circle</option>
+      <option value="Press & Media">Press & Media</option>
+      <option value="Local Business Collaboration">Local Business Collaboration</option>
     </select>
+    <small class="field-note">Select one or more interests.</small>
     <select name="price_preference" required>
       <option value="" disabled selected>Select Price Preference</option>
       <option>$99 / month</option>
