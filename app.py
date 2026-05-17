@@ -148,12 +148,13 @@ def generate_veo_video(api_key: str, model: str, prompt: str, image_url: str, as
         types.Part.from_bytes(data=image_resp.content, mime_type=mime_type),
     ]
 
+    # NOTE: current google-genai version in this app does not accept response_format
+    # in GenerateContentConfig (raises pydantic extra_forbidden on Heroku).
     response = client.models.generate_content(
         model=model,
         contents=contents,
         config=types.GenerateContentConfig(
             response_modalities=["TEXT", "IMAGE"],
-            response_format={"image": {"aspect_ratio": aspect_ratio, "image_size": image_size}},
         ),
     )
     return response
