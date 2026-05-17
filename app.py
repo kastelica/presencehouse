@@ -39,7 +39,7 @@ def create_app() -> Flask:
     raw_db_url = os.environ.get("DATABASE_URL", "sqlite:///presence_house.db")
     app.config["SQLALCHEMY_DATABASE_URI"] = normalize_database_url(raw_db_url)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["FORMSPREE_ENDPOINT"] = os.environ.get("FORMSPREE_ENDPOINT", "").strip()
+    app.config["FORMSPREE_ENDPOINT"] = os.environ.get("FORMSPREE_ENDPOINT", "https://formspree.io/f/xpqnajqj").strip()
 
     db.init_app(app)
 
@@ -124,8 +124,8 @@ def register_routes(app: Flask):
         if app.config["FORMSPREE_ENDPOINT"]:
             flash("Your form should submit directly to Formspree. Thanks for supporting Presence House.", "success")
         else:
-            flash("Thanks! No Formspree endpoint configured, so this local demo captured your interest.", "success")
-        return redirect(url_for("index") + "#founding-list")
+            flash("Thanks — your Founding List form was received successfully.", "success")
+        return redirect(url_for("index", submitted="1") + "#founding-list")
 
     @app.route("/register", methods=["GET", "POST"])
     def register():
