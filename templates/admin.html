@@ -20,4 +20,16 @@
 <section class="card"><h2>Edit activity status</h2>{% for a in activities %}<form method="POST" class="inline-form"><input type="hidden" name="action" value="update_activity_status"><input type="hidden" name="activity_id" value="{{ a.id }}"><strong>{{ a.title }}</strong><select name="status"><option {% if a.status=='Open' %}selected{% endif %}>Open</option><option {% if a.status=='Filling' %}selected{% endif %}>Filling</option><option {% if a.status=='Full' %}selected{% endif %}>Full</option></select><button class="btn" type="submit">Save</button></form>{% endfor %}</section>
 <section class="card form-card"><h2>Create announcement</h2><form method="POST">{{ ann_form.hidden_tag() }}{{ ann_form.title.label }}{{ ann_form.title() }}{{ ann_form.body.label }}{{ ann_form.body(rows=3) }}{{ ann_form.submit(class_='btn') }}</form></section>
 <section class="card"><h2>Update zone occupancy/vibe</h2>{% for z in zones %}<form method="POST" class="inline-form"><input type="hidden" name="action" value="update_zone"><input type="hidden" name="zone_id" value="{{ z.id }}"><strong>{{ z.name }}</strong><input name="vibe" value="{{ z.vibe }}"><input name="occupancy" value="{{ z.occupancy }}"><button class="btn" type="submit">Update</button></form>{% endfor %}</section>
+<section class="card form-card">
+  <h2>Generate Veo video</h2>
+  <p>Use still image URLs as initial frames for a Presence House concept clip.</p>
+  <form method="POST">
+    {{ veo_form.hidden_tag() }}
+    {{ veo_form.prompt.label }}{{ veo_form.prompt(rows=4, placeholder='Cinematic walkthrough of Presence House with warm lighting, people socializing, and analog games.') }}
+    {{ veo_form.image_urls.label }}{{ veo_form.image_urls(rows=4, placeholder='https://...\nhttps://...') }}
+    {{ veo_form.duration_seconds.label }}{{ veo_form.duration_seconds() }}
+    {{ veo_form.aspect_ratio.label }}{{ veo_form.aspect_ratio() }}
+    {{ veo_form.submit(class_='btn') }}
+  </form>
+</section>
 {% endblock %}
