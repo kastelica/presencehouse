@@ -28,6 +28,11 @@ def normalize_database_url(url: str) -> str:
     return url
 
 
+def should_seed_on_boot() -> bool:
+    """Avoid production boot crashes from concurrent worker seeding."""
+    return os.environ.get("SEED_ON_BOOT", "0") == "1"
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "presence-house-dev-key")
@@ -49,7 +54,8 @@ def create_app() -> Flask:
 
     with app.app_context():
         db.create_all()
-        seed_data()
+        if should_seed_on_boot():
+            seed_data()
 
     register_routes(app)
     return app
