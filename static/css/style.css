@@ -37,3 +37,19 @@ blockquote cite{font-style:normal;color:var(--stone);font-size:.92rem}
 .dot{width:10px;height:10px;border-radius:50%;border:none;background:#c9beb0;cursor:pointer}
 .dot.active{background:var(--green)}
 @media(min-width:900px){.slide{height:440px}}
+
+
+/* Varied landing sections to avoid repetitive card pills */
+.feature-band{border-radius:22px;padding:1.2rem;background:linear-gradient(120deg,#f3e1ca,#efe8dc);margin-bottom:1rem}
+.feature-inner{max-width:780px}
+.split-card{display:grid;gap:.7rem;background:#f7f1e8;border-left:6px solid var(--accent);border-radius:18px;padding:1rem;margin-bottom:1rem}
+.accent-panel{background:linear-gradient(135deg,#294535,#1f3b2d);color:#fff;border-radius:18px;padding:1.1rem;margin-bottom:1rem}
+.icon-grid{display:grid;gap:.7rem;grid-template-columns:1fr;margin-bottom:1rem}
+.icon-grid article{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:1rem}
+.membership-strip{display:flex;flex-direction:column;gap:.6rem;background:#e7d2b3;border-radius:18px;padding:1rem;margin-bottom:1rem}
+.minimal-callout{background:#f3f8f4;border:1px solid #d5e6d8;border-radius:18px;padding:1rem;margin-bottom:1rem}
+.minimal-callout ul{margin:.4rem 0 0 1rem;padding:0}
+.card.alt{background:#fff7ea}
+.card.deep{background:#eef3ef}
+.card.soft{background:#f5f2ee}
+@media(min-width:768px){.icon-grid{grid-template-columns:repeat(3,1fr)}}
