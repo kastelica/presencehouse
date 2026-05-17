@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://presence.homes/static/sitemap.xml
