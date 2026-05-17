@@ -10,10 +10,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <header class="topbar">
+  <header class="topbar" data-nav-shell>
     <div class="shell nav-wrap">
       <a href="{{ url_for('index') }}" class="brand">Presence House</a>
-      <nav class="nav-links">
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>☰</button>
+      <nav id="site-nav" class="nav-links" data-nav-links>
         <a href="{{ url_for('index') }}#philosophy">Philosophy</a>
         <a href="{{ url_for('index') }}#house">The House</a>
         <a href="{{ url_for('index') }}#campaign">Campaign</a>
@@ -21,7 +22,7 @@
         <a href="{{ url_for('index') }}#faq">FAQ</a>
         <a href="{{ url_for('gallery') }}">Gallery</a>
       </nav>
-      <div class="nav-cta">
+      <div class="nav-cta" data-nav-cta>
         <a class="btn" href="http://spot.fund/j2brwjqsc" target="_blank" rel="noopener noreferrer">Support Campaign</a>
       </div>
     </div>
