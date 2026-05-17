@@ -60,7 +60,7 @@
 (function trackMetaEvents() {
   if (typeof window.fbq !== 'function') return;
 
-  document.querySelectorAll('a[href*="spot.fund/j2brwjqsc"]').forEach((link) => {
+  document.querySelectorAll('a[href*="spot.fund/9s54l27sc"]').forEach((link) => {
     link.addEventListener('click', () => {
       fbq('trackCustom', 'DonateLinkClick', {
         destination: link.getAttribute('href') || '',
