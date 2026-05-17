@@ -123,6 +123,14 @@ class VeoVideoForm(FlaskForm):
     submit = SubmitField("Generate video with Veo")
 
 
+def list_available_veo_models(api_key: str):
+    endpoint = "https://generativelanguage.googleapis.com/v1beta/models"
+    resp = requests.get(endpoint, params={"key": api_key}, timeout=30)
+    resp.raise_for_status()
+    models = resp.json().get("models", [])
+    return [m for m in models if "veo" in (m.get("name", "").lower())]
+
+
 def generate_veo_video(api_key: str, model: str, prompt: str, image_urls: list[str], duration_seconds: int, aspect_ratio: str):
     endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:predictLongRunning"
     payload = {
@@ -311,7 +319,18 @@ def register_routes(app: Flask):
                         flash("Veo request submitted successfully.", "success")
                 except requests.HTTPError as exc:
                     detail = exc.response.text[:400] if exc.response is not None else str(exc)
-                    flash(f"Veo request failed: {detail}", "danger")
+                    if exc.response is not None and exc.response.status_code == 404:
+                        try:
+                            veo_models = list_available_veo_models(api_key)
+                            names = [m.get("name", "") for m in veo_models][:8]
+                            if names:
+                                flash(f"Configured model '{model}' is unavailable for v1beta/predictLongRunning. Try one of: {', '.join(names)}", "danger")
+                            else:
+                                flash("No Veo models were returned by ModelService.ListModels for this API key/project.", "danger")
+                        except requests.RequestException:
+                            flash(f"Veo request failed (404 model/method mismatch). Also failed to list models. Raw error: {detail}", "danger")
+                    else:
+                        flash(f"Veo request failed: {detail}", "danger")
                 except requests.RequestException as exc:
                     flash(f"Veo request failed: {exc}", "danger")
             return redirect(url_for("admin"))
