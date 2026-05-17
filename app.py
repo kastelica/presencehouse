@@ -1,5 +1,7 @@
 import os
 from datetime import datetime, timedelta
+
+from sqlalchemy.exc import IntegrityError
 from functools import wraps
 
 from flask import Flask, flash, redirect, render_template, request, url_for
@@ -19,10 +21,18 @@ SOCIAL_MODES = [
 ]
 
 
+def normalize_database_url(url: str) -> str:
+    """Normalize platform-provided DB URLs for SQLAlchemy compatibility."""
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql://", 1)
+    return url
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "presence-house-dev-key")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///presence_house.db")
+    raw_db_url = os.environ.get("DATABASE_URL", "sqlite:///presence_house.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = normalize_database_url(raw_db_url)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["FORMSPREE_ENDPOINT"] = os.environ.get("FORMSPREE_ENDPOINT", "").strip()
 
@@ -254,47 +264,55 @@ def register_routes(app: Flask):
 
 
 def seed_data():
+    """Seed demo content idempotently and safely across concurrent worker boots."""
     if not User.query.filter_by(email="admin@presencehouse.club").first():
         admin = User(name="Presence Admin", email="admin@presencehouse.club", interests="Community", social_mode="Open to conversation", is_admin=True)
         admin.set_password("presence123")
         db.session.add(admin)
 
-    if Zone.query.count() == 0:
-        zones = [
-            Zone(name="Quiet Lounge", description="Calm reading and reflection", vibe="Soft-spoken, reflective", occupancy="Light", phone_expectation="Silent and tucked away"),
-            Zone(name="Social Commons", description="Conversation-friendly central room", vibe="Warm and social", occupancy="Moderate", phone_expectation="Quick checks only"),
-            Zone(name="Focus Rooms", description="Heads-down work corners", vibe="Quiet concentration", occupancy="Steady", phone_expectation="No calls"),
-            Zone(name="Activity Hall", description="Group activity and workshop space", vibe="Lively with structure", occupancy="Busy", phone_expectation="Away during sessions"),
-            Zone(name="Café & Bar", description="Tea, coffee, and intentional chats", vibe="Gentle hum", occupancy="Moderate", phone_expectation="Use briefly between conversations"),
-            Zone(name="Outdoor Space", description="Fresh air and walking loops", vibe="Restorative", occupancy="Open", phone_expectation="Minimal"),
-        ]
-        db.session.add_all(zones)
+    zone_samples = [
+        ("Quiet Lounge", "Calm reading and reflection", "Soft-spoken, reflective", "Light", "Silent and tucked away"),
+        ("Social Commons", "Conversation-friendly central room", "Warm and social", "Moderate", "Quick checks only"),
+        ("Focus Rooms", "Heads-down work corners", "Quiet concentration", "Steady", "No calls"),
+        ("Activity Hall", "Group activity and workshop space", "Lively with structure", "Busy", "Away during sessions"),
+        ("Café & Bar", "Tea, coffee, and intentional chats", "Gentle hum", "Moderate", "Use briefly between conversations"),
+        ("Outdoor Space", "Fresh air and walking loops", "Restorative", "Open", "Minimal"),
+    ]
+    for name, description, vibe, occupancy, phone_expectation in zone_samples:
+        if not Zone.query.filter_by(name=name).first():
+            db.session.add(Zone(name=name, description=description, vibe=vibe, occupancy=occupancy, phone_expectation=phone_expectation))
 
-    if Activity.query.count() == 0:
-        now = datetime.now().replace(second=0, microsecond=0)
-        samples = [
-            ("Silent Reading Lounge", "Bring a book and share quiet company.", "Quiet Lounge", 0, 90, 18, "Open", "Reflection"),
-            ("Open Conversation Table", "Meet someone new over guided prompts.", "Social Commons", 30, 90, 10, "Open", "Social"),
-            ("Chess & Strategy Night", "Analog strategy and friendly matches.", "Activity Hall", 120, 180, 16, "Filling", "Games"),
-            ("Community Dinner", "Long table dinner with intentional conversation.", "Café & Bar", 240, 120, 22, "Filling", "Dining"),
-            ("Deep Work Session", "Focused sprint with light accountability.", "Focus Rooms", 60, 120, 12, "Open", "Work"),
-            ("Analog Creative Hour", "Sketching, journaling, and collage.", "Outdoor Space", 150, 90, 14, "Open", "Creative"),
-            ("Philosophy Circle", "Slow dialogue around one timeless question.", "Quiet Lounge", 300, 90, 10, "Open", "Discussion"),
-            ("Phone-Light Social Hour", "Easy social time with phones tucked away.", "Social Commons", 360, 90, 20, "Open", "Social"),
-        ]
-        for title, desc, zone, offset, dur, cap, status, a_type in samples:
+    now = datetime.now().replace(second=0, microsecond=0)
+    activity_samples = [
+        ("Silent Reading Lounge", "Bring a book and share quiet company.", "Quiet Lounge", 0, 90, 18, "Open", "Reflection"),
+        ("Open Conversation Table", "Meet someone new over guided prompts.", "Social Commons", 30, 90, 10, "Open", "Social"),
+        ("Chess & Strategy Night", "Analog strategy and friendly matches.", "Activity Hall", 120, 180, 16, "Filling", "Games"),
+        ("Community Dinner", "Long table dinner with intentional conversation.", "Café & Bar", 240, 120, 22, "Filling", "Dining"),
+        ("Deep Work Session", "Focused sprint with light accountability.", "Focus Rooms", 60, 120, 12, "Open", "Work"),
+        ("Analog Creative Hour", "Sketching, journaling, and collage.", "Outdoor Space", 150, 90, 14, "Open", "Creative"),
+        ("Philosophy Circle", "Slow dialogue around one timeless question.", "Quiet Lounge", 300, 90, 10, "Open", "Discussion"),
+        ("Phone-Light Social Hour", "Easy social time with phones tucked away.", "Social Commons", 360, 90, 20, "Open", "Social"),
+    ]
+    for title, desc, zone, offset, dur, cap, status, a_type in activity_samples:
+        if not Activity.query.filter_by(title=title, zone=zone).first():
             start = now + timedelta(minutes=offset)
             db.session.add(Activity(title=title, description=desc, zone=zone, start_time=start, end_time=start + timedelta(minutes=dur), capacity=cap, status=status, activity_type=a_type))
 
-    if Announcement.query.count() == 0:
-        db.session.add_all([
-            Announcement(title="Welcome to Presence House", body="Welcome to Presence House—this app exists to help you return to the room."),
-            Announcement(title="Phone guidance", body="Phones stay tucked away during activities unless otherwise noted."),
-            Announcement(title="Tonight's dinner", body="Community dinner starts at 7:30 PM in Café & Bar."),
-            Announcement(title="New member tip", body="New members can begin at the Open Conversation Table."),
-        ])
+    announcement_samples = [
+        ("Welcome to Presence House", "Welcome to Presence House—this app exists to help you return to the room."),
+        ("Phone guidance", "Phones stay tucked away during activities unless otherwise noted."),
+        ("Tonight's dinner", "Community dinner starts at 7:30 PM in Café & Bar."),
+        ("New member tip", "New members can begin at the Open Conversation Table."),
+    ]
+    for title, body in announcement_samples:
+        if not Announcement.query.filter_by(title=title).first():
+            db.session.add(Announcement(title=title, body=body))
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        # Another worker likely seeded simultaneously; rollback and continue boot.
+        db.session.rollback()
 
 
 app = create_app()
