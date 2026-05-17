@@ -131,6 +131,9 @@
       if (status) {
         status.hidden = false;
         status.textContent = 'Thanks — your Founding List form was received successfully.';
+        if (window.matchMedia('(max-width: 899px)').matches) {
+          status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
       form.reset();
       if (typeof window.fbq === 'function') {
@@ -145,6 +148,9 @@
       if (status) {
         status.hidden = false;
         status.textContent = 'Something went wrong submitting the form. Please try again.';
+        if (window.matchMedia('(max-width: 899px)').matches) {
+          status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     }
   });
