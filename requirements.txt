@@ -4,3 +4,6 @@ Flask-Login==0.6.3
 Flask-WTF==1.2.2
 email-validator==2.2.0
 gunicorn==22.0.0
+
+requests==2.32.3
+google-genai==0.7.0
