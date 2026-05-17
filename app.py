@@ -131,16 +131,17 @@ def list_available_veo_models(api_key: str):
     return [m for m in models if "veo" in (m.get("name", "").lower())]
 
 
-def generate_veo_video(api_key: str, model: str, prompt: str, image_urls: list[str], duration_seconds: int, aspect_ratio: str):
+def generate_veo_video(api_key: str, model: str, prompt: str, image_urls: list[str], duration_seconds: int, aspect_ratio: str | None = None):
     endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:predictLongRunning"
-    payload = {
-        "instances": [{
-            "prompt": prompt,
-            "imageUrls": image_urls,
-            "durationSeconds": duration_seconds,
-            "aspectRatio": aspect_ratio,
-        }]
+    instance = {
+        "prompt": prompt,
+        "imageUrls": image_urls,
+        "durationSeconds": duration_seconds,
     }
+    if aspect_ratio:
+        instance["aspectRatio"] = aspect_ratio
+
+    payload = {"instances": [instance]}
     resp = requests.post(endpoint, params={"key": api_key}, json=payload, timeout=45)
     resp.raise_for_status()
     return resp.json()
@@ -319,7 +320,24 @@ def register_routes(app: Flask):
                         flash("Veo request submitted successfully.", "success")
                 except requests.HTTPError as exc:
                     detail = exc.response.text[:400] if exc.response is not None else str(exc)
-                    if exc.response is not None and exc.response.status_code == 404:
+                    if exc.response is not None and exc.response.status_code == 400 and "aspectRatio" in detail:
+                        try:
+                            result = generate_veo_video(
+                                api_key=api_key,
+                                model=model,
+                                prompt=veo_form.prompt.data.strip(),
+                                image_urls=urls,
+                                duration_seconds=veo_form.duration_seconds.data or 8,
+                                aspect_ratio=None,
+                            )
+                            operation_name = result.get("name") or result.get("operation", {}).get("name")
+                            if operation_name:
+                                flash(f"Veo job submitted without aspect ratio: {operation_name}", "success")
+                            else:
+                                flash("Veo request submitted without aspect ratio.", "success")
+                        except requests.RequestException as retry_exc:
+                            flash(f"Veo request failed: {detail}. Retry without aspect ratio also failed: {retry_exc}", "danger")
+                    elif exc.response is not None and exc.response.status_code == 404:
                         try:
                             veo_models = list_available_veo_models(api_key)
                             names = [m.get("name", "") for m in veo_models][:8]
