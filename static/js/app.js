@@ -126,6 +126,9 @@
         fbq('track', 'Lead', { content_name: 'Founding List Form Submit' });
         fbq('trackCustom', 'FoundingListConfirmed', { source: 'formspree_ajax' });
       }
+      if (typeof window.gtag === 'function') {
+        gtag('event', 'form_submit_success', { form_name: 'founding_list', source: 'formspree_ajax' });
+      }
     } catch (_err) {
       if (status) {
         status.hidden = false;
@@ -133,4 +136,43 @@
       }
     }
   });
+})();
+
+
+(function trackGA4Events() {
+  if (typeof window.gtag !== 'function') return;
+
+  document.querySelectorAll('a[href*="spot.fund/9s54l27sc"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      gtag('event', 'donate_click', {
+        link_url: link.getAttribute('href') || '',
+        link_text: (link.textContent || '').trim(),
+        location: 'site'
+      });
+    });
+  });
+
+  document.querySelectorAll('a[href="#founding-list"]').forEach((link) => {
+    link.addEventListener('click', () => {
+      gtag('event', 'cta_click', {
+        cta_name: 'join_founding_list',
+        location: 'hero'
+      });
+    });
+  });
+
+  const foundingForm = document.querySelector('#founding-list-form');
+  foundingForm?.addEventListener('submit', () => {
+    gtag('event', 'generate_lead', {
+      form_name: 'founding_list',
+      method: 'form_submit'
+    });
+  });
+
+  const successMessage = document.querySelector('#founding-list-status');
+  if (successMessage && !successMessage.hasAttribute('hidden') && successMessage.textContent.trim()) {
+    gtag('event', 'form_submit_success', {
+      form_name: 'founding_list'
+    });
+  }
 })();
