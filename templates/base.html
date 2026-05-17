@@ -4,6 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Presence House{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Presence House is a space for real connection in Carlsbad, CA—fewer screens, in-person activities and games, and the warmth of a shared room. We are in Phase 1 fundraising.{% endblock %}">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <link rel="canonical" href="{{ request.url }}">
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dapxfxumu/image/upload/v1779043245/07016583-38a3-4296-a97d-471c0aaa4141_reukcr.png">
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dapxfxumu/image/upload/v1779043245/07016583-38a3-4296-a97d-471c0aaa4141_reukcr.png">
+
+  <meta property="og:site_name" content="Presence House">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{% block og_title %}Presence House | A Space for Human Connection{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Presence House is a space for real connection in Carlsbad, CA—fewer screens, in-person activities and games, and a warm shared room. Phase 1 fundraising is live.{% endblock %}">
+  <meta property="og:url" content="{{ request.url }}">
+  <meta property="og:image" content="https://res.cloudinary.com/dapxfxumu/image/upload/v1779043245/07016583-38a3-4296-a97d-471c0aaa4141_reukcr.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}Presence House | A Space for Human Connection{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}Presence House is a space for real connection in Carlsbad, CA. Fewer screens, in-person activities, and a warm shared room.{% endblock %}">
+  <meta name="twitter:image" content="https://res.cloudinary.com/dapxfxumu/image/upload/v1779043245/07016583-38a3-4296-a97d-471c0aaa4141_reukcr.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Presence House",
+    "url": "https://presence.homes/",
+    "logo": "https://res.cloudinary.com/dapxfxumu/image/upload/v1779043245/07016583-38a3-4296-a97d-471c0aaa4141_reukcr.png",
+    "sameAs": ["http://spot.fund/9s54l27sc"]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Presence House",
+    "url": "https://presence.homes/"
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">

@@ -1,4 +1,5 @@
 import os
+import requests
 from datetime import datetime, timedelta
 
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -114,6 +115,29 @@ def parse_dt(value: str):
     return datetime.strptime(value, "%Y-%m-%d %H:%M")
 
 
+class VeoVideoForm(FlaskForm):
+    prompt = TextAreaField("Video prompt", validators=[DataRequired(), Length(max=2000)])
+    image_urls = TextAreaField("Initial frame image URLs (one per line)", validators=[DataRequired(), Length(max=4000)])
+    duration_seconds = IntegerField("Duration seconds", validators=[Optional(), NumberRange(min=3, max=12)], default=8)
+    aspect_ratio = SelectField("Aspect ratio", choices=[("16:9", "16:9"), ("9:16", "9:16"), ("1:1", "1:1")], default="16:9")
+    submit = SubmitField("Generate video with Veo")
+
+
+def generate_veo_video(api_key: str, model: str, prompt: str, image_urls: list[str], duration_seconds: int, aspect_ratio: str):
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:predictLongRunning"
+    payload = {
+        "instances": [{
+            "prompt": prompt,
+            "imageUrls": image_urls,
+            "durationSeconds": duration_seconds,
+            "aspectRatio": aspect_ratio,
+        }]
+    }
+    resp = requests.post(endpoint, params={"key": api_key}, json=payload, timeout=45)
+    resp.raise_for_status()
+    return resp.json()
+
+
 def register_routes(app: Flask):
     @app.route("/")
     def index():
@@ -224,6 +248,7 @@ def register_routes(app: Flask):
     def admin():
         activity_form = ActivityForm(prefix="activity")
         ann_form = AnnouncementForm(prefix="announce")
+        veo_form = VeoVideoForm(prefix="veo")
 
         if activity_form.validate_on_submit() and activity_form.submit.data:
             try:
@@ -263,7 +288,35 @@ def register_routes(app: Flask):
             db.session.commit()
             flash("Zone updated.", "success")
 
-        return render_template("admin.html", activity_form=activity_form, ann_form=ann_form, activities=Activity.query.all(), zones=Zone.query.all())
+        if veo_form.validate_on_submit() and veo_form.submit.data:
+            api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
+            model = os.environ.get("GOOGLE_VEO_MODEL", "veo-3.0-generate-preview")
+            if not api_key:
+                flash("Missing GOOGLE_API_KEY. Add it to environment to enable Veo generation.", "danger")
+            else:
+                urls = [u.strip() for u in (veo_form.image_urls.data or "").splitlines() if u.strip()]
+                try:
+                    result = generate_veo_video(
+                        api_key=api_key,
+                        model=model,
+                        prompt=veo_form.prompt.data.strip(),
+                        image_urls=urls,
+                        duration_seconds=veo_form.duration_seconds.data or 8,
+                        aspect_ratio=veo_form.aspect_ratio.data,
+                    )
+                    operation_name = result.get("name") or result.get("operation", {}).get("name")
+                    if operation_name:
+                        flash(f"Veo job submitted: {operation_name}", "success")
+                    else:
+                        flash("Veo request submitted successfully.", "success")
+                except requests.HTTPError as exc:
+                    detail = exc.response.text[:400] if exc.response is not None else str(exc)
+                    flash(f"Veo request failed: {detail}", "danger")
+                except requests.RequestException as exc:
+                    flash(f"Veo request failed: {exc}", "danger")
+            return redirect(url_for("admin"))
+
+        return render_template("admin.html", activity_form=activity_form, ann_form=ann_form, veo_form=veo_form, activities=Activity.query.all(), zones=Zone.query.all())
 
     @app.route("/gallery")
     @app.route("/gallery2", endpoint="gallery2")
